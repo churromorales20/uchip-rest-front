@@ -1,0 +1,50 @@
+{
+  "name": "artisan_frontend",
+  "version": "0.0.1",
+  "description": "A Quasar Project",
+  "productName": "Artisan burgers Website",
+  "author": "cecilio.dev@gmail.com",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.vue ./",
+    "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@capacitor/geolocation": "^4.1.0",
+    "@fawmi/vue-google-maps": "^0.9.79",
+    "@geocoder-free/utils": "^0.2.8",
+    "@quasar/extras": "^1.0.0",
+    "@spurreiter/geocoder": "^1.5.3",
+    "@trevoreyre/autocomplete-vue": "^2.4.0",
+    "axios": "^0.21.1",
+    "axios-jsonp": "^1.0.4",
+    "geocoder-geojson": "^1.11.0",
+    "google-geocoder": "^0.2.1",
+    "google-maps-api": "^2.0.1",
+    "jsonp": "^0.2.1",
+    "mitt": "^3.0.0",
+    "node-geocoder": "^4.2.0",
+    "pinia": "^2.0.11",
+    "quasar": "^2.6.0",
+    "sweetalert2": "^11.6.15",
+    "vue": "^3.0.0",
+    "vue-i18n": "^9.0.0",
+    "vue-router": "^4.0.0"
+  },
+  "devDependencies": {
+    "@intlify/vite-plugin-vue-i18n": "^3.3.1",
+    "@quasar/app-vite": "^1.0.0",
+    "autoprefixer": "^10.4.2",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "postcss": "^8.4.14",
+    "prettier": "^2.5.1"
+  },
+  "engines": {
+    "node": "^18 || ^16 || ^14.19",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}
