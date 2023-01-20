@@ -33,6 +33,7 @@ export default {
         const res = await uchipRequest.post('order/create', {
             ...order_data,
             items: this.itemsDetail4Order,
+            general_comments: this.general_comments,
             tip_amount: this.tip_amount,
             payment_method: this.payment_method,
             coupon_code: this.coupon_code,

@@ -19,7 +19,7 @@
                                             {{ percentDiscount(item.total_normal, item.total) }}
                                         </span>
                                     </div>
-                                    <span v-show="item.comments != ''">"{{ item.comments }}"</span>
+                                    <span class="order-view-item-content-comment" v-show="item.comments != ''">"{{ item.comments }}"</span>
                                 </q-item-section>
                             </template>
                             <q-card>

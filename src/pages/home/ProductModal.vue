@@ -29,8 +29,7 @@
                                 <h6>Comentarios</h6>
                                 <q-input 
                                     v-model="pStore.product_featured.sell.comments" 
-                                    :dense="true"
-                                    filled 
+                                    :dense="true" 
                                     type="textarea" />
                             </div>
                         </div>

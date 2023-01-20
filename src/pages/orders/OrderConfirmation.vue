@@ -2,7 +2,7 @@
     <div v-if="oStore.configuration === null" class="order-confirmation-loader">
         <q-spinner color="secondary" size="4rem" :thickness="3" />
     </div>
-   <div v-else>
+    <div v-else>
         <q-expansion-item :dense="true" class="order-confirmation-expand">
             <template v-slot:header>
                 <div class="order-confirmation-header">
@@ -16,7 +16,8 @@
             <q-card>
                 <q-card-section>
                     <ul class="order-confirmation-preview">
-                        <li v-for="(item, item_index) in oStore.itemsDetail" :key="'_confirmation_order_item_' + item_index">
+                        <li v-for="(item, item_index) in oStore.itemsDetail"
+                            :key="'_confirmation_order_item_' + item_index">
                             <div class="order-confirmation-item-image"
                                 :style="{ 'background-image': 'url(https://d3lryrecr523dy.cloudfront.net/companies/products/images/800/' + item.image + ')' }">
                             </div>
@@ -39,6 +40,31 @@
                             </div>
                         </li>
                     </ul>
+                </q-card-section>
+            </q-card>
+            <q-card>
+                <q-card-section class="order-confirmation-details">
+                    <h6>Informacion de entrega:</h6>
+                    <div>
+                        <q-icon class="order-confirmation-details-icon" name="fa-solid fa-location-pin">
+
+                        </q-icon>
+                        <span>{{ aStore.selectedAddress.text }}</span>
+                    </div>
+                    <div>
+                        <q-icon class="order-confirmation-details-icon" name="fa-solid fa-user">
+
+                        </q-icon>
+                        <span>{{ uStore.name }}</span>
+                    </div>
+                    <div>
+                        <q-icon class="order-confirmation-details-icon" name="fa-solid fa-phone">
+
+                        </q-icon>
+                        <span>{{ uStore.name }} {{ uStore.phone }}</span>
+                    </div>
+                    <h6>Comentarios adicionales:</h6>
+                    <q-input :dense="true" v-model="oStore.general_comments" autogrow filled type="textarea" />
                 </q-card-section>
             </q-card>
         </q-expansion-item>
@@ -67,8 +93,8 @@
                             <h6>S/. -{{ orderTotalDiscount }}</h6>
                         </li>
                         <li v-show="oStore.couponDiscountTotal > 0">
-                            <h6>Cupon descuento <small><b>({{ this.oStore.coupon_code}})</b></small>:</h6>
-                            <h6>S/. -{{ this.oStore.couponDiscountTotal}}</h6>
+                            <h6>Cupon descuento <small><b>({{ this.oStore.coupon_code }})</b></small>:</h6>
+                            <h6>S/. -{{ this.oStore.couponDiscountTotal }}</h6>
                         </li>
                         <li v-show="oStore.tipAmount > 0">
                             <h6>Propina:</h6>
@@ -85,29 +111,21 @@
         <div v-if="oStore.tipsActive.length > 0" class="order-confirmation-tips">
             <h6 class="order-confirmation-tips-title">Alguna propina para nuestro quipo?</h6>
             <div class="order-confirmation-tips-container">
-                <div 
-                    v-on:click="oStore.setTipAmount(0)"
+                <div v-on:click="oStore.setTipAmount(0)"
                     :class="'order-confirmation-tips-item' + (oStore.tipAmount == 0 ? ' tip-selected' : '')">
                     S/. 0
                 </div>
-                <div 
-                    v-on:click="oStore.setTipAmount(tip)"
+                <div v-on:click="oStore.setTipAmount(tip)"
                     :class="'order-confirmation-tips-item' + (oStore.tipAmount == tip ? ' tip-selected' : '')"
-                    v-for="(tip, tip_index) in oStore.tipsActive" 
-                    :key="'tip_' + tip_index + '_order__'">
+                    v-for="(tip, tip_index) in oStore.tipsActive" :key="'tip_' + tip_index + '_order__'">
                     S/. {{ tip }}
                 </div>
             </div>
         </div>
         <div v-if="oStore.isDiscountActive" class="order-confirmation-discount">
             <h6>Cupon de descuento</h6>
-            <q-input 
-                class="order-confirmation-input"
-                v-model="oStore.coupon_code" 
-                placeholder="MI-DESCUENTO"
-                @change="checkCoupon"
-                :loading="oStore.isCheckingCoupon"
-                :dense="true">
+            <q-input class="order-confirmation-input" v-model="oStore.coupon_code" placeholder="MI-DESCUENTO"
+                @change="checkCoupon" :loading="oStore.isCheckingCoupon" :dense="true">
                 <template v-slot:prepend>
                     <q-icon name="fa-solid fa-tag" />
                 </template>
@@ -115,25 +133,20 @@
         </div>
         <div class="order-confirmation-discount">
             <h6>Metodo de pago</h6>
-            <q-select 
-                @update:modelValue="oStore.setError('')"
-                class="order-confirmation-input"
-                :dense="true"
-                v-model="oStore.payment_method" 
-                :options="oStore.paymentOptions" 
-                options-cover 
-                stack-label />
+            <q-select @update:modelValue="oStore.setError('')" class="order-confirmation-input" :dense="true"
+                v-model="oStore.payment_method" :options="oStore.paymentOptions" options-cover stack-label />
         </div>
-   </div>
+    </div>
 </template>
 <script>
 import { defineComponent, ref } from 'vue'
 import { useOrdersStore } from 'stores/orders';
 import { useUserStore } from 'stores/user'
+import { useDeliveryAddressStore } from 'stores/delivery_address'
 export default defineComponent({
     name: 'OrderConfirmation',
-    methods:{
-        checkCoupon(){
+    methods: {
+        checkCoupon() {
             this.oStore.checkCoupon(this.uStore.email);
         }
     },
@@ -152,9 +165,11 @@ export default defineComponent({
     setup() {
         const oStore = useOrdersStore();
         const uStore = useUserStore();
+        const aStore = useDeliveryAddressStore();
         oStore.loadOrderConfig();
         uStore.loadData();
         return {
+            aStore,
             oStore,
             uStore,
         }

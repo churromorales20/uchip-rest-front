@@ -15,6 +15,7 @@ export const useOrdersStore = defineStore('orders', {
         placing_order: false,
         checking_order: false,
         checking_coupon: false,
+        general_comments: '',
     }),
     getters: {
         currentlyActive: (state) => {
