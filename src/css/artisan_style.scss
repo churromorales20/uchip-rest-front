@@ -519,6 +519,9 @@ $check_color: #4f9e04;
       .q-stepper__nav{
         padding: 10px 25px 25px;
       }
+      .q-btn .q-icon{
+        font-size: 1.2rem;
+      }
       &-navigation{
         h6{
           margin: 0px 30px;
@@ -656,7 +659,7 @@ $check_color: #4f9e04;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 20px;
+      margin: 20px 20px 0px 20px;
       .q-field{
         margin-left: 15px;
         .q-icon{
@@ -672,7 +675,7 @@ $check_color: #4f9e04;
     }
     &-tips{
       border-bottom: 1px solid #efefef;
-      padding-bottom: 20px;
+      padding: 0px 20px 20px;
       &-container{
         display: flex;
         flex-wrap: wrap;
@@ -781,6 +784,10 @@ $check_color: #4f9e04;
           flex: 1;
           display: flex;
           align-items: flex-end;
+          padding-right: 0px;
+          .q-icon{
+            margin-right: -10px;
+          }
       }
       .q-card__section{
         padding: 10px 20px;

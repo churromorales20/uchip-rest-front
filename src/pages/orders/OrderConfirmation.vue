@@ -66,6 +66,14 @@
                             <h6>Total descuentos:</h6>
                             <h6>S/. -{{ orderTotalDiscount }}</h6>
                         </li>
+                        <li v-show="oStore.couponDiscountTotal > 0">
+                            <h6>Cupon descuento <small><b>({{ this.oStore.coupon_code}})</b></small>:</h6>
+                            <h6>S/. -{{ this.oStore.couponDiscountTotal}}</h6>
+                        </li>
+                        <li v-show="oStore.tipAmount > 0">
+                            <h6>Propina:</h6>
+                            <h6>S/. {{ oStore.tipAmount }}</h6>
+                        </li>
                         <li class="order-confirmation-total-items-grand">
                             <h6>Total:</h6>
                             <h6>S/. {{ orderTotal }}</h6>
@@ -96,7 +104,9 @@
             <q-input 
                 class="order-confirmation-input"
                 v-model="oStore.coupon_code" 
-                placeholder="MI-DESCUENTO" 
+                placeholder="MI-DESCUENTO"
+                @change="oStore.checkCoupon"
+                :loading="oStore.isCheckingCoupon"
                 :dense="true">
                 <template v-slot:prepend>
                     <q-icon name="fa-solid fa-tag" />
@@ -123,13 +133,15 @@ import { useUserStore } from 'stores/user'
 export default defineComponent({
     name: 'OrderConfirmation',
     methods:{
-        
+        checkCoupon(){
+            console.log('RODAR');
+        }
     },
     computed: {
         orderTotal() {
-            return this.oStore.itemsDetail.reduce((total, item) => {
+            return (this.oStore.tipAmount + this.oStore.itemsDetail.reduce((total, item) => {
                 return total + item.total;
-            }, 0);
+            }, 0)) - this.oStore.couponDiscountTotal;
         },
         orderTotalDiscount() {
             return this.oStore.itemsDetail.reduce((total, item) => {

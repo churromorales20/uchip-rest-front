@@ -1,12 +1,14 @@
 <template>
     <q-btn 
         v-if="aStore.window_view == 'book'" 
-        @click="continueNextStep" 
+        flat 
         color="secondary" 
-        label="Continuar" />
+        icon="fa fa-arrow-left"
+        @click="parentStepper.previous()" 
+        label="Volver" />
     <q-btn 
         v-if="aStore.window_view == 'book'" 
-        color="accent" 
+        color="secondary" 
         flat 
         @click="newAddressPressed" 
         icon="fa-solid fa-plus" 
@@ -14,38 +16,40 @@
         label="Nueva direccion" />
     <q-btn 
         v-if="aStore.window_view == 'book'" 
-        flat 
+        @click="continueNextStep" 
         color="accent" 
-        @click="parentStepper.previous()" 
-        label="Volver" 
-        class="q-ml-sm" />
-    <q-btn 
-        v-if="aStore.window_view == 'new_address'" 
-        color="secondary" 
-        @click="saveAddress" 
-        icon="fa-regular fa-floppy-disk" 
-        label="Guardar" />
+        class="q-ml-sm" 
+        icon="fa fa-arrow-right"
+        label="Continuar" />
     <q-btn 
         v-if="aStore.window_view == 'new_address' && aStore.delivery_addresses.length > 0" 
         flat 
-        color="accent" 
-        @click="aStore.setWindowView('book')" 
-        label="Direcciones guardadas" 
-        class="q-ml-sm" />
-    <q-btn 
-        v-if="aStore.window_view == 'map'" 
         color="secondary" 
-        @click="confirmAddressMap" 
-        :disable="aStore.mapSelectorTextAddress == ''"
-        icon="fa-solid fa-check"
-        label="Confirmar" />
+        icon="fa-solid fa-book"
+        @click="aStore.setWindowView('book')" 
+        label="Direcciones guardadas" />
+    <q-btn 
+        v-if="aStore.window_view == 'new_address'" 
+        color="accent" 
+        @click="saveAddress" 
+        icon="fa-regular fa-floppy-disk" 
+        class="q-ml-sm"
+        label="Guardar" />
     <q-btn 
         v-if="aStore.window_view == 'map'" 
         flat 
-        color="accent" 
+        color="secondary" 
+        icon="fa fa-arrow-left"
         @click="aStore.setWindowView('new_address')" 
-        label="Volver"
-        class="q-ml-sm" />
+        label="Volver" />
+    <q-btn 
+        v-if="aStore.window_view == 'map'" 
+        color="accent" 
+        @click="confirmAddressMap" 
+        :disable="aStore.mapSelectorTextAddress == ''"
+        icon="fa-solid fa-check"
+        class="q-ml-sm"
+        label="Confirmar" />
 </template>
 <script>
 import { defineComponent } from 'vue'

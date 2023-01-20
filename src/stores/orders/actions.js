@@ -47,6 +47,36 @@ export default {
         this.placing_order = false;
         return false;
     },
+    async preCheck(onChecked) {
+        this.checking_order = true;
+        const res = await uchipRequest.post('order/check', {
+            items: this.itemsDetail4Order
+        });
+        if (res?.status === 'success') {
+            onChecked();
+        } else {
+            this.setError('An error ocurred.');
+        }
+        this.checking_order = false;
+        return false;
+    },
+    async checkCoupon() {
+        if (this.coupon_code != ''){
+            this.checking_coupon = true;
+            const res = await uchipRequest.get('order/coupon/check', {
+                coupon_code: this.coupon_code,
+                order_total: this.itemsDetail.reduce((total, item) => {
+                    return total + item.total;
+                }, 0)
+            });
+            if (res?.status === 'success') {
+                this.coupon_discount = res.discount;
+            } else {
+                this.setError('An error ocurred.');
+            }
+            this.checking_coupon = false;
+        }
+    },
     setTipAmount(amount) {
         this.tip_amount = amount;
     },

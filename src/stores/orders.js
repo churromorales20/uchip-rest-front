@@ -11,17 +11,29 @@ export const useOrdersStore = defineStore('orders', {
         tip_amount: 0,
         payment_method: '',
         coupon_code: '',
-        placing_order: false
+        coupon_discount: 0,
+        placing_order: false,
+        checking_order: false,
+        checking_coupon: false,
     }),
     getters: {
         currentlyActive: (state) => {
             return state.current_order;
+        },
+        couponDiscountTotal: (state) => {
+            return state.coupon_discount;
         },
         tipsActive: (state) => {
             return Array.isArray(state.configuration?.tips) ? state.configuration?.tips : [];
         },
         isPlacingOrder: (state) => {
             return state.placing_order;
+        },
+        isCheckingCoupon: (state) => {
+            return state.checking_coupon;
+        },
+        isCheckingOrder: (state) => {
+            return state.checking_order;
         },
         paymentOptions: (state) => {
             return Array.isArray(state.configuration?.payments) ? state.configuration?.payments : [];

@@ -1,5 +1,8 @@
 <template>
-    <q-dialog @hide="modalClosed" v-model="oStore.show_preview" :persistent="oStore.isPlacingOrder">
+    <q-dialog 
+        @hide="modalClosed" 
+        v-model="oStore.show_preview" 
+        :persistent="oStore.isPlacingOrder || oStore.isCheckingOrder">
         <q-card class="order-preview-modal">
             <q-card-section>
                 <h2 class="order-preview-modal-title">Tu pedido - <span class="order-preview-modal-title-total">Total: S/. 24,50</span><span class="order-preview-modal-title-itemsno"> ({{ oStore.totalItems }} {{ oStore.totalItems > 1 ? 'items' : 'item' }})</span></h2>
@@ -38,14 +41,15 @@
                         <div class="order-stepper-navigation">
                             <h6 v-if="oStore.error_message != ''">{{ oStore.error_message }}</h6>
                             <q-stepper-navigation>
-                                <q-btn v-if="orderStep == 1" color="secondary" @click="continueShopping()" label="Continuar eligiendo"
+                                <q-btn v-if="orderStep == 1" color="secondary" @click="continueShopping()" icon="fa-solid fa-utensils" :disable="oStore.isCheckingOrder" label="Continuar eligiendo"
                                     class="q-ml-sm" />
-                                <q-btn v-if="orderStep == 1" color="accent" @click="$refs.stepper.next()" label="Listo para ordenar!"
+                                <q-btn v-if="orderStep == 1" color="accent" @click="readyToOrderPressed" icon="fa fa-arrow-right" :loading="oStore.isCheckingOrder" :disable="oStore.isCheckingOrder" label="Listo para ordenar!"
                                     class="q-ml-sm" />
                                 <OrderDeliveryButtons v-if="orderStep == 3" :parentStepper="$refs.stepper" />
-                                <q-btn v-if="orderStep == 2" @click="continueButtonPressed" color="secondary" label="Continuar" />
-                                <q-btn :loading="oStore.isPlacingOrder" :disable="oStore.isPlacingOrder" v-if="orderStep === 4" @click="confirmOrderButtonPressed" color="secondary" label="Finalizar la orden" />
-                                <q-btn v-if="orderStep == 2 || orderStep > 3" flat color="accent" @click="$refs.stepper.previous()" label="Volver" class="q-ml-sm" />
+                                <q-btn v-if="orderStep == 2 || orderStep > 3" flat color="secondary" icon="fa fa-arrow-left" @click="$refs.stepper.previous()" :disable="oStore.isPlacingOrder || oStore.isCheckingCoupon" label="Volver" class="q-mr-sm" />
+                                <q-btn v-if="orderStep == 2" @click="continueButtonPressed" icon="fa fa-arrow-right" color="accent" label="Continuar" />
+                                <q-btn :loading="oStore.isPlacingOrder" :disable="oStore.isPlacingOrder || oStore.isCheckingCoupon" v-if="orderStep === 4" @click="confirmOrderButtonPressed" color="secondary" label="Finalizar la orden" />
+                                
                             </q-stepper-navigation>
                         </div>
                     </template>
@@ -75,6 +79,11 @@ export default defineComponent({
         OrderConfirmation
     },
     methods:{
+        async readyToOrderPressed(){
+            const response = await this.oStore.preCheck(() => {
+                this.$refs.stepper.next();  
+            });
+        },
         modalClosed(){
             this.orderStep = 1;
         },
