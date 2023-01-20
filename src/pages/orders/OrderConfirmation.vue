@@ -105,7 +105,7 @@
                 class="order-confirmation-input"
                 v-model="oStore.coupon_code" 
                 placeholder="MI-DESCUENTO"
-                @change="oStore.checkCoupon"
+                @change="checkCoupon"
                 :loading="oStore.isCheckingCoupon"
                 :dense="true">
                 <template v-slot:prepend>
@@ -134,7 +134,7 @@ export default defineComponent({
     name: 'OrderConfirmation',
     methods:{
         checkCoupon(){
-            console.log('RODAR');
+            this.oStore.checkCoupon(this.uStore.email);
         }
     },
     computed: {
