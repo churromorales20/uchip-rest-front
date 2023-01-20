@@ -60,19 +60,36 @@ export default {
         this.checking_order = false;
         return false;
     },
-    async checkCoupon() {
+    async checkCoupon(email) {
         if (this.coupon_code != ''){
             this.checking_coupon = true;
             const res = await uchipRequest.get('order/coupon/check', {
                 coupon_code: this.coupon_code,
+                user_email: email,
                 order_total: this.itemsDetail.reduce((total, item) => {
                     return total + item.total;
                 }, 0)
             });
             if (res?.status === 'success') {
-                this.coupon_discount = res.discount;
+                this.coupon_discount = res.discount_amount;
             } else {
-                this.setError('An error ocurred.');
+                this.coupon_code = '';
+                let error_message = 'An error ocurred.';
+                if (res?.code == 10) {
+                    error_message = 'Cupon invalido.';
+                } else if (res?.code == 11){
+                    error_message = 'El cupon ya fue utilizado.';
+                } else if (res?.code == 12) {
+                    error_message = 'El cupon es valido solo para nuevos clientes.';
+                } else if (res?.code == 14) {
+                    error_message = 'El cupon ha expirado.';
+                } else if (res?.code == 15) {
+                    error_message = 'El cupon require de compra minima.';
+                }
+                this.setError(error_message);
+                setTimeout(() => {
+                    this.setError('');
+                }, 4000);
             }
             this.checking_coupon = false;
         }
