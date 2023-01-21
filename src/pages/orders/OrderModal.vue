@@ -3,10 +3,17 @@
         @hide="modalClosed" 
         v-model="oStore.show_preview" 
         :persistent="oStore.isPlacingOrder || oStore.isCheckingOrder">
+        
         <q-card class="order-preview-modal">
             <q-card-section>
                 <h2 class="order-preview-modal-title">Tu pedido - <span class="order-preview-modal-title-total">Total: S/. 24,50</span><span class="order-preview-modal-title-itemsno"> ({{ oStore.totalItems }} {{ oStore.totalItems > 1 ? 'items' : 'item' }})</span></h2>
-                <q-stepper class="order-stepper" v-model="orderStep" ref="stepper" color="secondary" animated>
+                <q-stepper
+                    v-if="oStore.totalItems > 0"
+                    class="order-stepper" 
+                    v-model="orderStep" 
+                    ref="stepper" 
+                    color="secondary" 
+                    animated>
                     <q-step :name="1" :title="'Resumen (' + oStore.totalItems + ' ' + (oStore.totalItems > 1 ? 'items' : 'item') + ')'" icon="fa-solid fa-cart-shopping" :done="orderStep > 1">
                         <OrderPreview />
                     </q-step>
@@ -54,6 +61,14 @@
                         </div>
                     </template>
                 </q-stepper>
+                <div class="order-preview-modal-empty" v-else>
+                    <div class="order-preview-modal-empty-title">
+                        <h5>Aun no has agredado nada a tu orden.</h5>
+                    </div>
+                    <div>
+                        <q-btn @click="confirmOrderButtonPressed" color="secondary" label="Cerrar" />
+                    </div>
+                </div>
             </q-card-section>
         </q-card>
     </q-dialog>
