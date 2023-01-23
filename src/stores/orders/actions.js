@@ -2,6 +2,19 @@ import { uchipRequest } from '../../utils/uchipRequest';
 const updateOrderLocalStorage = (items) => {
     localStorage.setItem("order_items", JSON.stringify(items));
 }
+const couponCodeErrorMessage = (code) => {
+    if (code == 10) {
+        return 'Cupon invalido.';
+    } else if (code == 11) {
+        return 'El cupon ya fue utilizado.';
+    } else if (code == 12) {
+        return 'El cupon es valido solo para nuevos clientes.';
+    } else if (code == 14) {
+        return 'El cupon ha expirado.';
+    } else if (code == 15) {
+        return 'El cupon require de compra minima.';
+    }
+}
 export default {
     minusProductByIndex(index_item) {
         if (this.items[index_item].sell.qty > 1) {
@@ -43,7 +56,13 @@ export default {
             this.current_order = res.order_id;
             return res;
         } else {
-            this.setError('An error ocurred.');
+            let error_message = 'An error ocurred.';
+            if (res?.code >= 10 && res?.code < 20) {
+                error_message = couponCodeErrorMessage(res?.code);
+            } else if (res?.code >= 20 && res?.code < 30){
+                error_message = 'Orden Invalida.'
+            }
+            this.setError(error_message);
         }
         this.placing_order = false;
         return false;
@@ -54,9 +73,15 @@ export default {
             items: this.itemsDetail4Order
         });
         if (res?.status === 'success') {
+            this.setError('');
             onChecked();
         } else {
-            this.setError('An error ocurred.');
+            //this.setError('An error ocurred.');
+            let error_message = 'An error ocurred.';
+            if (res?.code >= 10 && res?.code < 20) {
+                error_message = couponCodeErrorMessage(res?.code);
+            }
+            this.setError(error_message);
         }
         this.checking_order = false;
         return false;

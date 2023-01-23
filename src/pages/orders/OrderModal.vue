@@ -53,7 +53,7 @@
                                 <q-btn v-if="orderStep == 1" color="accent" @click="readyToOrderPressed" icon="fa fa-arrow-right" :loading="oStore.isCheckingOrder" :disable="oStore.isCheckingOrder" label="Listo para ordenar!"
                                     class="q-ml-sm" />
                                 <OrderDeliveryButtons v-if="orderStep == 3" :parentStepper="$refs.stepper" />
-                                <q-btn v-if="orderStep == 2 || orderStep > 3" flat color="secondary" icon="fa fa-arrow-left" @click="$refs.stepper.previous()" :disable="oStore.isPlacingOrder || oStore.isCheckingCoupon" label="Volver" class="q-mr-sm" />
+                                <q-btn v-if="orderStep == 2 || orderStep > 3" flat color="secondary" icon="fa fa-arrow-left" @click="previousStep" :disable="oStore.isPlacingOrder || oStore.isCheckingCoupon" label="Volver" class="q-mr-sm" />
                                 <q-btn v-if="orderStep == 2" @click="continueButtonPressed" icon="fa fa-arrow-right" color="accent" label="Continuar" />
                                 <q-btn :loading="oStore.isPlacingOrder" :disable="oStore.isPlacingOrder || oStore.isCheckingCoupon" v-if="orderStep === 4" @click="confirmOrderButtonPressed" color="secondary" label="Finalizar la orden" />
                                 
@@ -98,6 +98,10 @@ export default defineComponent({
             const response = await this.oStore.preCheck(() => {
                 this.$refs.stepper.next();  
             });
+        },
+        previousStep(){
+            this.oStore.setError('');
+            this.$refs.stepper.previous();
         },
         modalClosed(){
             this.orderStep = 1;
