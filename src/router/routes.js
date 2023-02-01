@@ -1,7 +1,10 @@
 //import UserFeed from 'pages/user-feed'
 import IndexPage from 'pages/IndexPage.vue'
-//import OrderView from 'pages/OrderView.vue'
+import AdminLogin from 'pages/admin/Login.vue'
+import AdminDashboard from 'pages/admin/AdminDashboard.vue'
 import OrdersView from 'src/pages/orders/OrdersView.vue'
+import AdminMenu from 'src/pages/orders/OrdersView.vue'
+import auth from './middlewares/auth'
 const routes = [
   {
     path: '/',
@@ -10,6 +13,36 @@ const routes = [
       { path: '', component: () => IndexPage },
       { path: 'order', component: () => OrdersView }
     ]
+  },
+  {
+    path: '/admin',
+    component: () => import('layouts/AdminLayout.vue'),
+    children: [
+      { 
+        path: '', 
+        component: () => AdminDashboard,
+        name: 'adminDashboard'
+      },
+      { 
+        path: 'menu', 
+        component: () => AdminMenu,
+        name: 'adminMenu'
+      },
+    ],
+    meta: {
+      middlewares: [auth]
+    },
+  },
+  {
+    path: '/admin/login/',
+    component: () => import('layouts/AdminLoginLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => AdminLogin,
+        name: 'adminLogin',
+      },
+    ],
   },
 
   // Always leave this as last one,

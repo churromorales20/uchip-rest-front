@@ -3,7 +3,7 @@ const updateUserDataLocalStorage = (user_data) => {
     localStorage.setItem("user_data", JSON.stringify(user_data));
 }
 
-export const useUserStore = defineStore('user', {
+export const useAdminUserStore = defineStore('admin_user', {
     state: () => ({
         name: '',
         email: '',
@@ -21,7 +21,21 @@ export const useUserStore = defineStore('user', {
             }
         },
         isLoggedIn: (state) => {
-            return false;
+            return true;
+        },
+        menuItems: (state) => {
+            return [
+                {
+                    name: 'El menu',
+                    link: 'admin/menu',
+                    icon: 'fa-solid fa-pizza-slice'
+                },
+                {
+                    name: 'Menu 2',
+                    link: 'scamel_de_dentor',
+                    icon: 'fa-solid fa-user'
+                },
+            ];
         }
     },
     actions: {

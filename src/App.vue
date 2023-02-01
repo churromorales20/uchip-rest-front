@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!pStore.loaded" class="main-wrapper">
+  <!--<div v-if="!pStore.loaded" class="main-wrapper">
     <q-circular-progress 
       indeterminate size="200px" 
       :thickness="0.1" 
@@ -32,28 +32,17 @@
       </div>
       <router-view />
     </div>
-  </div>
+  </div>-->
+  <router-view />
   
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import { useOrdersStore } from 'stores/orders';
-import { useProductsStore } from 'stores/products';
-import OrderModal from './pages/orders/OrderModal.vue';
 
 export default defineComponent({
   name: 'App',
-  components:{
-    OrderModal,
-  },
-  methods: {
-    viewOrder(){
-      //this.$router.push({ path: 'order' });
-      this.oStore.setPreviewState(true);
-    }
-  },
-  setup() {
+  /*setup() {
     const pStore = useProductsStore();
     const oStore = useOrdersStore();
     oStore.loadFromStorage();
@@ -62,6 +51,6 @@ export default defineComponent({
       pStore,
       oStore
     }
-  }
+  }*/
 })
 </script>

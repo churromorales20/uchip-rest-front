@@ -6,7 +6,7 @@
         
         <q-card class="order-preview-modal">
             <q-card-section>
-                <h2 class="order-preview-modal-title">Tu pedido - <span class="order-preview-modal-title-total">Total: S/. 24,50</span><span class="order-preview-modal-title-itemsno"> ({{ oStore.totalItems }} {{ oStore.totalItems > 1 ? 'items' : 'item' }})</span></h2>
+                <h2 class="order-preview-modal-title">Tu pedido <span class="order-preview-modal-title-itemsno"> ({{ oStore.totalItems }} {{ oStore.totalItems > 1 ? 'items' : 'item' }})</span></h2>
                 <q-stepper
                     v-if="oStore.totalItems > 0"
                     class="order-stepper" 
