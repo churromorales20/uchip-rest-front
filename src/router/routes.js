@@ -3,7 +3,7 @@ import IndexPage from 'pages/IndexPage.vue'
 import AdminLogin from 'pages/admin/Login.vue'
 import AdminDashboard from 'pages/admin/AdminDashboard.vue'
 import OrdersView from 'src/pages/orders/OrdersView.vue'
-import AdminMenu from 'src/pages/orders/OrdersView.vue'
+import AdminMenu from 'pages/admin/AdminMenu.vue'
 import auth from './middlewares/auth'
 const routes = [
   {
@@ -27,6 +27,11 @@ const routes = [
         path: 'menu', 
         component: () => AdminMenu,
         name: 'adminMenu'
+      },
+      { 
+        path: 'orders/dashboard', 
+        component: () => AdminMenu,
+        name: 'admimOrderDashboard'
       },
     ],
     meta: {

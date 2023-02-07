@@ -16,18 +16,31 @@
 
     <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
       <div class="admin-menu">
-        <ul>
-          <li v-for="(menu, index_menu) in uAdmin.menuItems" :key="'_menu_item_' + index_menu">
-            <a :href="menu.link">
+        <q-list>
+          <q-item v-for="menu in uAdmin.menuItems" :key="'_menu_item_' + menu.id">
+            <router-link class="admin-menu-item" :to="{ path: '/admin/' + menu.link }" v-if="menu.children === null || menu.children.length === 0">
               <q-icon :name="menu.icon"></q-icon>
-              <span>{{ menu.name }}</span>
-            </a>
-          </li>
-        </ul>
+              <span>{{ menu.title }}</span>
+            </router-link>
+            <q-expansion-item v-else>
+              <template v-slot:header>
+                <q-item class="admin-menu-item admin-menu-item-parent"><q-icon :name="menu.icon"></q-icon> {{ menu.title }}</q-item>
+              </template>
+              <q-list>
+                <q-item v-for="submenu in menu.children" :key="'_menu_item_' + submenu.id" @click="select(subitem)">
+                  <router-link class="admin-menu-item" :to="{ path: '/admin/' + submenu.link }">       
+                    <q-icon :name="submenu.icon"></q-icon>
+                    <span>{{ submenu.title }}</span>
+                  </router-link>
+                </q-item>
+              </q-list>
+            </q-expansion-item>
+          </q-item>
+        </q-list>
       </div>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="admin-page-container">
       <router-view />
     </q-page-container>
 
