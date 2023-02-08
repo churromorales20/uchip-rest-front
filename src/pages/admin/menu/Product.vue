@@ -13,9 +13,47 @@
                     <div class="admin-menu-product-item-inputcounter">{{ productName.length }}/40</div>
                 </div>
                 <div class="col-md-9">
-                    <q-btn outline color="positive" size="sm" icon="fa-solid fa-check" label="Disponible" />
-                    <q-btn outline color="admin-default" size="sm" icon="fa-solid fa-copy" class="q-ml-sm"/>
-                    <q-btn outline color="admin-default" size="sm" icon="fa-solid fa-trash" class="q-ml-sm" />
+                    <q-btn 
+                        outline 
+                        :loading="changingStatus" 
+                        :disable="changingStatus" 
+                        :color="productItem.deleted_at === null ? 'positive' : 'admin-error'"
+                        size="sm" 
+                        @click="changeStatus()" 
+                        :icon="productItem.deleted_at === null ? 'fa-solid fa-check' : 'fa-solid fa-ban'" 
+                        :label="productItem.deleted_at === null ? 'Disponible' : 'No disponible'" />
+                    <!--<q-btn outline color="admin-default" size="sm" icon="fa-solid fa-copy" class="q-ml-sm"/>-->
+                    <q-btn-dropdown 
+                        color="admin-default"
+                        split
+                        padding="1" 
+                        v-model="showCopyMenu"
+                        size="sm"
+                        :loading="copyingProduct" 
+                        :disable="copyingProduct" 
+                        outline 
+                        icon="fa-solid fa-copy" 
+                        class="q-ml-sm" 
+                        @click="showCopyMenu = !showCopyMenu">
+                        <h5 class="admin-menu-product-item-copybtn-title">Copiar en:</h5>
+                        <q-list>
+                            <q-item 
+                                v-for="(cat, cat_index) in uAMenuStore.categoriesCopy" 
+                                :key="'_cat_selector_item_' + cat_index + '_' + productItem.id" 
+                                clickable 
+                                v-close-popup 
+                                @click="copyProduct(cat.id)">
+                                {{ cat.name }}
+                            </q-item>
+                        </q-list>
+                    </q-btn-dropdown>
+                    <q-btn 
+                        outline 
+                        @click="confirmProductDeletion()"
+                        color="admin-default" 
+                        size="sm" 
+                        icon="fa-solid fa-trash" 
+                        class="q-ml-sm" />
                 </div>
             </div>
             <div class="row">
@@ -25,45 +63,24 @@
             </div>
             <div class="row" style="padding-top:10px;">
                 <div class="col-md-2">
-                    <q-input v-model.number="price" type="number" label="Precio:" :dense="true" filled stack-label>
+                    <q-input v-model.number="price" class="admin-menu-product-item-price" type="number" label="Precio:" :dense="true" filled stack-label>
                         <template v-slot:prepend>
                             <span class="admin-menu-product-item-currencyinput">S/.</span>
                         </template>
                     </q-input>
                 </div>
                 <div class="col-md-2" style="padding-left:10px;">
-                    <q-input v-model="priceDiscount" label="Precio con descuento    :" :dense="true" filled stack-label>
+                    <q-input v-model.number="priceDiscount" class="admin-menu-product-item-price" type="number" label="Precio con descuento:" :dense="true" filled stack-label>
                         <template v-slot:prepend>
                             <span class="admin-menu-product-item-currencyinput">S/.</span>
                         </template>
                         <template v-if="priceDiscount != ''" v-slot:append>
-                            <q-icon name="close" @click="text = ''" class="cursor-pointer" />
+                            <q-icon name="close" @click="deleteDiscount()" class="cursor-pointer" />
                         </template>
                     </q-input>
                 </div>
             </div>
-            <div class="row admin-menu-product-item-additionals" style="padding-top:20px;">
-                <div class="col-1">
-                    <h5>Adicionales:</h5>
-                </div>
-                <div class="col-11">
-                    <draggable v-model="productAdditionals" :group="'addtionals_product_' + productAdditionals.id" @start="drag = true"
-                        @end="drag = false" item-key="id">
-                        <template #item="{ element }">
-                            <div class="admin-menu-additional-item">
-                                <q-chip icon="fa-solid fa-grip-vertical">
-                                    <div class="admin-menu-additional-item-name">{{ element.name }}</div>
-                                    <q-btn outline class="text-admin-default q-ml-sm" size="xs" padding="0" icon="fa-solid fa-gears" />
-                                    <q-btn outline size="xs" padding="0" icon="fa-solid fa-trash" class="text-admin-default q-ml-sm" />
-                                </q-chip>
-                            </div>
-                        </template>
-                    </draggable>
-                    <div :class="productAdditionals.length > 0 ? 'admin-menu-additional-item-add' : ''">
-                        <q-btn outline color="primary" round size="sm" icon="fa-solid fa-plus" />
-                    </div>
-                </div>
-            </div>
+            <AdminProductAdditionals :productItem="productItem"/>
         </div>
     </div>
 </template>
@@ -71,12 +88,14 @@
 <script>
 import draggable from 'vuedraggable'
 import { ref } from 'vue'
+import AdminProductAdditionals from './Additionals.vue';
 import { useAdminMenuStore } from 'stores/admin_menu'
 export default {
     name: 'AdminProduct',
     props: ['categoryId','productItem'],
     components:{
-        draggable
+        //draggable,
+        AdminProductAdditionals
     },
     computed: {
         productName: {
@@ -85,54 +104,65 @@ export default {
             },
             set(newName) {
                 this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
-                //this.$store.commit('updateList', value)
             }
         },
         productDescription: {
             get() {
                 return this.productItem.description;
             },
-            set(newName) {
-                //this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
-                //this.$store.commit('updateList', value)
+            set(newDesc) {
+                this.uAMenuStore.updateProductDescription(this.categoryId, this.productItem.id, newDesc);
             }
         },  
         price: {
             get() {
                 return this.productItem.price;
             },
-            set(newName) {
-                //this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
-                //this.$store.commit('updateList', value)
+            set(newPrice) {
+                this.uAMenuStore.updateProductPrice(this.categoryId, this.productItem.id, newPrice);
             }
         },
         priceDiscount: {
             get() {
                 return this.productItem.price_discount === null ? '' : this.productItem.price_discount;
             },
-            set(newName) {
-                //this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
-                //this.$store.commit('updateList', value)
+            set(newPrice) {
+                this.uAMenuStore.updateProductPrice(this.categoryId, this.productItem.id, newPrice, true);
             }
+        }
+    },
+    methods:{
+        async changeStatus() {
+            this.changingStatus = true;
+            await this.uAMenuStore.changeProductStatus(this.categoryId, this.productItem.id);
+            //this.$refs._delete_confirm_dialog_.hide()
+            this.changingStatus = false;
         },
-        productAdditionals: {
-            get() {
-                return this.productItem.additionals;
-            },
-            set(newName) {
-                //this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
-                //this.$store.commit('updateList', value)
-            }
+        async copyProduct(category_id) {
+            this.copyingProduct = true;
+            await this.uAMenuStore.copyProductToCategory(this.productItem, category_id);
+            //this.$refs._delete_confirm_dialog_.hide()
+            this.copyingProduct = false;
         },
-        /*{{categoryItem.name}}() {
-            return this.uAMenuStore.menuCategories[this.categoryIndex];
-        }*/
+        confirmProductDeletion(){
+            this.uAMenuStore.setProductToDelete({
+                product_id: this.productItem.id,
+                name: this.productItem.name,
+                category_id: this.categoryId
+            });
+        },
+        deleteDiscount(){
+            this.uAMenuStore.updateProductPrice(this.categoryId, this.productItem.id, null, true);
+        },
     },
     setup() {
         const uAMenuStore = useAdminMenuStore();
         //uAMenuStore.loadMenuInformation();
         return {
-            uAMenuStore
+            uAMenuStore,
+            changingStatus: ref(false),
+            showCopyMenu: ref(false),
+            copyingProduct: ref(false),
         }
     }
 }
