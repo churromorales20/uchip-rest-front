@@ -18,7 +18,7 @@
                 </q-card-actions>
             </q-card>
         </q-dialog>
-        <AdminAdditionalsDialog :productItem="productItem" />
+        <AdminAdditionalsDialog />
         <draggable 
             class="list-group"
             v-model="categoriesList" 

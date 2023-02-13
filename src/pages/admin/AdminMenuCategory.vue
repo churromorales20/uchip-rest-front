@@ -80,7 +80,6 @@ import draggable from 'vuedraggable'
 import { ref } from 'vue'
 import { useAdminMenuStore } from 'stores/admin_menu'
 import AdminProduct from './menu/Product.vue';
-import { useQuasar } from 'quasar'
 export default {
     name: 'AdminMenuCategory',
     props: ['categoryElement'],

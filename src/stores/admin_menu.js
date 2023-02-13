@@ -332,6 +332,53 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                 console.log(error)
             }
         },
+        async updateProductAdditionals(change){
+            try {
+                if (this.menu_items.length > 0) {
+                    let found = false;
+                    let cat_index = 0;
+                    for (const category of this.menu_items) {
+                        let prod_index = 0;
+                        for (const product of category.products) {
+                            if (product.id === change.product_id) {
+                                if (change.type === 'add') {
+                                    this.menu_items[cat_index].products[prod_index].additionals.push({
+                                        name: change.category_name,
+                                        id: change.category_id,
+                                    });
+                                }else{
+                                    this.menu_items[cat_index].products[prod_index].additionals = this.menu_items[cat_index].products[prod_index].additionals.filter(add => add.id != change.category_id)
+                                }
+                                found = true;
+                                break;
+                            }
+                            prod_index++;
+                        }
+                        if (found) {
+                            break;
+                        }
+                        cat_index++
+                    }
+                }
+                const data = await uchipRequest.post('admin/menu/products/additionals', change);
+                if (data.status == 'success') {
+                    /*//this.menu_items = this.menu_items.filter((item_cat) => item_cat.id != id);
+                    const cat_index = this.menu_items.findIndex((cat) => cat.id == id);
+                    //console.log(this.menu_items);
+                    this.menu_items[cat_index].deleted_at = this.menu_items[cat_index].deleted_at === null ? true : null;*/
+                    Notify.create({
+                        type: 'positive',
+                        color: 'positive',
+                        timeout: 2500,
+                        position: 'top-right',
+                        message: 'Cambios guardados con exito'
+                    })
+                }
+            }
+            catch (error) {
+                console.log(error)
+            }
+        },
         async changeCategoryStatus(id){
             try {
                 const data = await uchipRequest.post('admin/menu/categories/changestatus');
