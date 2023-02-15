@@ -10,10 +10,14 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
         products_list: [],
         data_loading: false,
         lastTransactionOk: false,
+        timeout_id: null
     }),
     getters: {
         newCategoryItem: (state) => {
             return state.additional_list.find((add) => add?.type_ui === 'new_item');
+        },
+        thereIsNewCategory: (state) => {
+            return state.additional_list.findIndex((add) => add?.type_ui === 'new_item') >= 0;
         },
         isShowingDialog: (state) => {
             return state.product != null;
@@ -47,6 +51,7 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                 let associateds = [];
                 let others = [];
                 const prod_additionals = state.product.additionals;
+                console.log(state.additional_list);
                 state.additional_list.forEach((add) => {
                     if (add?.type_ui !== 'new_item'){
                         if (prod_additionals.findIndex((pradd) => pradd.id === add.id) >= 0) {
@@ -81,11 +86,10 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
             this.item_deleting = item;
         },
         showProductDialog(product) {
-            console.log('LLAMADOI');
             this.product = product;
         },
         resetNewCategory() {
-            this.additional_list.map(cat => {
+            this.additional_list = this.additional_list.map(cat => {
                 return {
                     ...cat,
                     type_ui: null
@@ -95,22 +99,15 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
         async addNewAdditionalCategory() {
             try {
                 this.lastTransactionOk = false;
-                const data = await uchipRequest.get('admin/menu/additionals');
+                const data = await uchipRequest.get('admin/menu/additionals/create');
                 if (data.status == 'success') {
                     //const add_index = this.additional_list.findIndex((add) => add.id == id);
                     this.resetNewCategory();
                     this.additional_list.push({
-                        name: 'Nueva categoria.',
-                        id: 68,
-                        deleted_at: null,
-                        items_data: [],
-                        max_items: 1,
-                        min_items: 1,
-                        products: [],
-                        required: false,
-                        single: true,
+                        ...data.category,
                         type_ui: 'new_item'
                     });
+                    console.log(this.additional_list);
                     this.lastTransactionOk = true;
                     Notify.create({
                         type: 'positive',
@@ -118,6 +115,34 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                         timeout: 2500,
                         position: 'top-right',
                         message: 'Cambios guardados con exito'
+                    });
+                }
+            }
+            catch (error) {
+                console.log(error)
+            }
+        },
+        async duplicateCategory(id) {
+            try {
+                this.lastTransactionOk = false;
+                const data = await uchipRequest.post('admin/menu/additionals/duplicate', {
+                    id: id
+                });
+                if (data.status == 'success') {
+                    //const add_index = this.additional_list.findIndex((add) => add.id == id);
+                    this.resetNewCategory();
+                    this.additional_list.push({
+                        ...data.category,
+                        type_ui: 'new_item'
+                    });
+                    console.log(this.additional_list);
+                    this.lastTransactionOk = true;
+                    Notify.create({
+                        type: 'positive',
+                        color: 'positive',
+                        timeout: 2500,
+                        position: 'top-right',
+                        message: 'Categoria duplicada con exito'
                     });
                 }
             }
@@ -154,16 +179,51 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                 }else{
                     this.additional_list[add_index].min_items = newval;
                 }
-                //const menu = useAdminMenuStore();
-                //menu.loadMenuInformation();
-                const data = await uchipRequest.get('admin/menu/additionals');
+                if (this.timeout_id !== null) {
+                    clearTimeout(this.timeout_id);
+                }
+                this.timeout_id = setTimeout(async () => {
+                    const data = await uchipRequest.post('admin/menu/additionals/update/quantity', {
+                        type: type,
+                        value: newval,
+                        id: id
+                    });
+                    if (data.status == 'success') {
+                        Notify.create({
+                            type: 'positive',
+                            color: 'positive',
+                            timeout: 2500,
+                            position: 'top-right',
+                            message: 'Cambios guardados con exito'
+                        });
+                    }
+                }, 650);
+            }
+            catch (error) {
+                console.log(error)
+            }
+        },
+        async delete() {
+            try {
+                const url = this.item_deleting.type === 'option' ? 'admin/menu/additionals/options/delete' : 'admin/menu/additionals/delete';
+                const data = await uchipRequest.post(url, this.item_deleting);
                 if (data.status == 'success') {
+                    let message = 'Categoría de adicionales borrada con éxito.';
+                    if (this.item_deleting.type === 'option'){
+                        message = 'Opción eliminada con éxito.';
+                        const add_index = this.additional_list.findIndex((add) => add.id == this.item_deleting.category_id);
+                        //const opt_index = this.additional_list[add_index].items_data.findIndex((opt) => opt.id == this.item_deleting.id);
+                        this.additional_list[add_index].items_data = this.additional_list[add_index].items_data.filter(opt => opt.id != this.item_deleting.id);
+                    }else{
+                        this.additional_list = this.additional_list.filter(add => add.id != this.item_deleting.id);
+                        //REMOVE CATEGORY FROM LIST AND FROM PRODUCTS
+                    }
                     Notify.create({
                         type: 'positive',
                         color: 'positive',
                         timeout: 2500,
                         position: 'top-right',
-                        message: 'Cambios guardados con exito'
+                        message: message
                     });
                 }
             }
@@ -181,7 +241,11 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                 }
                 //const menu = useAdminMenuStore();
                 //menu.loadMenuInformation();
-                const data = await uchipRequest.get('admin/menu/additionals');
+                const data = await uchipRequest.post('admin/menu/additionals/update/behavior', {
+                    id : id,
+                    value : newval === true ? 1 : 0,
+                    type : type,
+                });
                 if (data.status == 'success') {
                     Notify.create({
                         type: 'positive',
@@ -200,16 +264,76 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
             try {
                 const add_index = this.additional_list.findIndex((add) => add.id == catId);
                 const opt_index = this.additional_list[add_index].items_data.findIndex((opt) => opt.id == optId);
+                
                 if (type == 'name'){
                     this.additional_list[add_index].items_data[opt_index].name = newval;
-                }else if (type == 'price'){
+                }else if (type == 'price') {
+                    newval = newval.toFixed(2);
                     this.additional_list[add_index].items_data[opt_index].price = newval;
-                }else if (type == 'status'){
-                    this.additional_list[add_index].items_data[opt_index].active = newval;
-                }else{
+                } else {
                     this.additional_list[add_index].items_data[opt_index].max = newval;
                 }
-                const data = await uchipRequest.get('admin/menu/additionals');
+                if (this.timeout_id !== null) {
+                    clearTimeout(this.timeout_id);
+                }
+                this.timeout_id = setTimeout(async () => {
+                    const data = await uchipRequest.post('admin/menu/additionals/options/update', {
+                        type: type,
+                        option_id: optId,
+                        new_val: newval
+                    });
+                    if (data.status == 'success') {
+                        Notify.create({
+                            type: 'positive',
+                            color: 'positive',
+                            timeout: 2500,
+                            position: 'top-right',
+                            message: 'Cambios guardados con exito'
+                        });
+                    }
+                }, 450);
+            }
+            catch (error) {
+                console.log(error)
+            }
+        },
+        async updateName(catId, newval) {
+            try {
+                const add_index = this.additional_list.findIndex((add) => add.id == catId);
+                this.additional_list[add_index].name = newval;
+                if (this.timeout_id !== null) {
+                    clearTimeout(this.timeout_id);
+                }
+                this.timeout_id = setTimeout(async () => {
+                    const data = await uchipRequest.post('admin/menu/additionals/update/name', {
+                        id: catId,
+                        value: newval
+                    });
+                    if (data.status == 'success') {
+                        Notify.create({
+                            type: 'positive',
+                            color: 'positive',
+                            timeout: 2500,
+                            position: 'top-right',
+                            message: 'Cambios guardados con exito'
+                        });
+                    }
+                }, 450);
+            }
+            catch (error) {
+                console.log(error)
+            }
+        },
+        async updateOptionStatus(catId, optId, newval) {
+            try {
+                const add_index = this.additional_list.findIndex((add) => add.id == catId);
+                const opt_index = this.additional_list[add_index].items_data.findIndex((opt) => opt.id == optId);
+                this.additional_list[add_index].items_data[opt_index].active = newval;
+                const data = await uchipRequest.post('admin/menu/additionals/options/update', {
+                    type: 'status',
+                    option_id: optId,
+                    new_val: newval
+                });
                 if (data.status == 'success') {
                     Notify.create({
                         type: 'positive',
@@ -226,17 +350,12 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
         },
         async addNewOption(id) {
             try {
-                const data = await uchipRequest.post('admin/menu/products/additionals');
+                const data = await uchipRequest.post('admin/menu/additionals/options/add', {
+                    category_id: id
+                });
                 if (data.status == 'success') {
                     const add_index = this.additional_list.findIndex((add) => add.id == id);
-                    this.additional_list[add_index].items_data.push({
-                        id: this.additional_list[add_index].length,
-                        max: 1,
-                        price: 0,
-                        active: true,
-                        name: 'Nuevo adicional',
-                        order: this.additional_list[add_index].length,
-                    });
+                    this.additional_list[add_index].items_data.push(data.option);
                     Notify.create({
                         type: 'positive',
                         color: 'positive',
@@ -253,31 +372,38 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
         async setCategoryOptionsMap(id, values) {
             try {
                 const add_index = this.additional_list.findIndex((add) => add.id == id);
-                console.log(values);
-                console.log(this.additional_list[add_index].items_data);
                 let options = [];
+                let options_request = [];
                 values.forEach((option, index) => {
                     const new_order = index + 1;
                     options.push({
                         ...option,
                         order: new_order
                     });
-                    /*products_request.push({
-                        id: product.id,
+                    options_request.push({
+                        id: option.id,
                         order: new_order
-                    });*/
+                    });
                 })
                 this.additional_list[add_index].items_data = options;
-                const data = await uchipRequest.post('admin/menu/products/additionals');
-                if (data.status == 'success') {
-                    Notify.create({
-                        type: 'positive',
-                        color: 'positive',
-                        timeout: 2500,
-                        position: 'top-right',
-                        message: 'Cambios guardados con exito'
-                    });
+                if (this.timeout_id !== null) {
+                    clearTimeout(this.timeout_id);
                 }
+                this.timeout_id = setTimeout(async () => {
+                    const data = await uchipRequest.post('admin/menu/additionals/options/order', {
+                        options_order: options_request
+                    });
+                    if (data.status == 'success') {
+                        Notify.create({
+                            type: 'positive',
+                            color: 'positive',
+                            timeout: 2500,
+                            position: 'top-right',
+                            message: 'Cambios guardados con exito'
+                        });
+                    }
+                }, 600);
+                
             }
             catch (error) {
                 console.log(error)

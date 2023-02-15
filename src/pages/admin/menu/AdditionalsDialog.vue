@@ -1,6 +1,7 @@
 <template>
     <q-dialog 
         full-height
+        @hide="mainDialogHide"
         ref="_product_additionals_dialog_" 
         v-model="showDialog" :persistent="false">
         <q-card class="admin-modal-additionals">
@@ -25,7 +26,7 @@
                             @click="addNewAdditionalCategory()"
                             label="Nueva categoria" />
                     </div>
-                    <div v-if="thereIsNewCategory">
+                    <div v-if="addStore.thereIsNewCategory">
                         <AdminAdditionalItem :isOpen="true" :add="addStore.newCategoryItem" />
                     </div>
                     <div v-for="(add, add_index) in addStore.list" :key="'_add_category_item_' + add_index + '_'" clickable v-ripple>
@@ -49,10 +50,10 @@
                 <h5>Esta accion no podra deshacerse, por favor confirma que desas continuar?</h5>
             </q-card-section>
             <q-card-actions align="right">
-                <q-btn flat label="Cancel" :disable="deletingCategory" color="admin-warning" v-close-popup />
+                <q-btn flat label="Cancel" :disable="deletingItem" color="admin-warning" v-close-popup />
                 <q-btn 
-                    :loading="deletingCategory" 
-                    :disable="deletingCategory" 
+                    :loading="deletingItem" 
+                    :disable="deletingItem" 
                     label="Continuar (Borrar)" 
                     outline
                     color="admin-warning" 
@@ -91,6 +92,10 @@ export default {
         },
     },
     methods: {
+        mainDialogHide(){
+            this.thereIsNewCategory = false;
+            this.addStore.resetNewCategory();
+        },
         async addNewAdditionalCategory(){
             this.addingCat = true;
             await this.addStore.addNewAdditionalCategory();
@@ -100,7 +105,11 @@ export default {
             this.addingCat = false;
         },
         async confirmedDeletion(){
-
+            this.deletingItem = true;
+            await this.addStore.delete();
+            //TODO: VALIDATE TRANSANCTION
+            this.addStore.showConfirmDialog(null);
+            this.deletingItem = false;
         }
     },
     setup() {
@@ -112,6 +121,7 @@ export default {
             addStore,
             thereIsNewCategory: ref(false),
             addingCat: ref(false),
+            deletingItem: ref(false),
         }
     }
 }

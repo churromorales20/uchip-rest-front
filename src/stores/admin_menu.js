@@ -360,7 +360,7 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                         cat_index++
                     }
                 }
-                const data = await uchipRequest.post('admin/menu/products/additionals', change);
+                const data = await uchipRequest.post('admin/menu/products/additionals/association', change);
                 if (data.status == 'success') {
                     /*//this.menu_items = this.menu_items.filter((item_cat) => item_cat.id != id);
                     const cat_index = this.menu_items.findIndex((cat) => cat.id == id);

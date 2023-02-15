@@ -43,7 +43,9 @@
                     </q-btn-dropdown>
                     <q-btn 
                         outline 
-                        @click="confirmProductDeletion()" 
+                        @click="copyAdditionalCategory()" 
+                        :disable="copyingCategory"
+                        :loading="copyingCategory"
                         color="admin-default" 
                         size="sm" 
                         class="q-ml-sm"
@@ -132,8 +134,9 @@
                             :loading="adding"
                             :disable="adding" 
                             size="sm" 
+                            class="admin-additionals-item-option-btn"
                             icon="fa-solid fa-plus" 
-                                label="Nuevo adicional" />
+                            label="Nuevo adicional" />
                     </div>
                 </div>
             </div>
@@ -199,7 +202,7 @@ export default {
             },
             set(newval) {
                 //console.log(newval);
-                this.addStore.updateOptionsQty(this.add.id, newval, 'min');
+                this.addStore.updateOptionsQty(this.add.id, newval == '' ? 0 : newval, 'min');
             }
         },
         addMaxOptions: {
@@ -208,7 +211,7 @@ export default {
             },
             set(newval) {
                 //console.log(newval);
-                this.addStore.updateOptionsQty(this.add.id, newval, 'max');
+                this.addStore.updateOptionsQty(this.add.id, newval == '' ? 0 : newval, 'max');
             }
         },
         addRequired: {
@@ -235,7 +238,7 @@ export default {
                 return this.add.name;
             },
             set(newval) {
-                //console.log(newval);
+                this.addStore.updateName(this.add.id, newval);
             }
         },
     },
@@ -249,8 +252,13 @@ export default {
             this.addStore.showConfirmDialog({
                 name: this.add.name,
                 id: this.add.id,
-                type: 'category'
+                type: 'category',
             });
+        },
+        async copyAdditionalCategory(){
+            this.copyingCategory = true;
+            await this.addStore.duplicateCategory(this.add.id);
+            this.copyingCategory = false;
         }
     },
     setup() {
@@ -261,6 +269,8 @@ export default {
             //uAMenuStore,
             addStore,
             adding: ref(false),
+            copyingCategory: ref(false),
+            showAssociationMenu: ref(false),
         }
     }
 }

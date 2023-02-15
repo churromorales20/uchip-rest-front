@@ -65,7 +65,7 @@ export default {
                 return this.option.active;
             },
             set(newval) {
-                this.addStore.updateOption(this.addId, this.option.id, newval, 'status');
+                this.addStore.updateOptionStatus(this.addId, this.option.id, newval);
             }
         },
         optName: {
@@ -81,7 +81,7 @@ export default {
                 return this.option.price;
             },
             set(newval) {
-                this.addStore.updateOption(this.addId, this.option.id, newval, 'price');
+                this.addStore.updateOption(this.addId, this.option.id, newval == '' ? 0 : newval, 'price');
             }
         },
         optMax: {
@@ -89,7 +89,7 @@ export default {
                 return this.option.max;
             },
             set(newval) {
-                this.addStore.updateOption(this.addId, this.option.id, newval, 'name');
+                this.addStore.updateOption(this.addId, this.option.id, newval == '' ? 0 : newval, 'max');
             }
         },
     },
@@ -98,6 +98,7 @@ export default {
             this.addStore.showConfirmDialog({
                 name: this.option.name,
                 id: this.option.id,
+                category_id: this.addId,
                 type: 'option'
             });
         }
