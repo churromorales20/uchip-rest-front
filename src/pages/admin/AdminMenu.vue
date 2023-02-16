@@ -20,30 +20,23 @@
         </q-dialog>
         <AdminAdditionalsDialog />
         <ProductImageSelector />
-        <draggable 
-            class="list-group"
-            v-model="categoriesList" 
-            group="categories_menu" 
-            @start="drag=true" 
-            @end="drag=false" 
-            v-bind="dragOptions"
-            item-key="id">
-            <template #item="{element}">
-                <li class="list-group-item">
-                    <AdminMenuCategory :categoryElement="element"></AdminMenuCategory>
-                </li>
-            </template>
-        </draggable>
-        <div>
-            <q-btn 
-                outline 
-                color="positive" 
-                @click="uAMenuStore.createNewCategory()"
-                :loading="uAMenuStore.creating_category" 
-                :disable="uAMenuStore.creating_category" 
-                size="md" 
-                icon="fa-solid fa-plus" 
-                label="Nueva categoria" />
+        <AdminBreadCrumbs />
+        <div class="admin-module-container">
+            <h5 class="admin-module-title">
+                Tu menu
+            </h5>
+            <draggable class="list-group" v-model="categoriesList" group="categories_menu" @start="drag=true" @end="drag=false"
+                v-bind="dragOptions" item-key="id">
+                <template #item="{element}">
+                    <li class="list-group-item">
+                        <AdminMenuCategory :categoryElement="element"></AdminMenuCategory>
+                    </li>
+                </template>
+            </draggable>
+            <div>
+                <q-btn outline color="positive" @click="uAMenuStore.createNewCategory()" :loading="uAMenuStore.creating_category"
+                    :disable="uAMenuStore.creating_category" size="md" icon="fa-solid fa-plus" label="Nueva categoria" />
+            </div>
         </div>
     </div>
     
@@ -56,13 +49,15 @@ import { useAdminMenuStore } from 'stores/admin_menu'
 import AdminMenuCategory from './AdminMenuCategory.vue';
 import ProductImageSelector from './menu/ProductImageSelector.vue';
 import AdminAdditionalsDialog from './menu/AdditionalsDialog.vue';
+import AdminBreadCrumbs from '../../components/admin/BreadCrumbs.vue';
 export default {
     name: 'AdminMenu',
     components:{
         draggable,
         AdminMenuCategory,
         AdminAdditionalsDialog,
-        ProductImageSelector
+        ProductImageSelector,
+        AdminBreadCrumbs
     },
     computed: {
         dragOptions() {
