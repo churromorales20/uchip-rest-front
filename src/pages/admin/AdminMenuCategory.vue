@@ -68,7 +68,10 @@
                 </template>
             </draggable>
             <q-btn 
-                color="positive" 
+                color="positive"
+                @click="addNewProduct"
+                :loading="addingProduct"
+                :disable="addingProduct"
                 icon="fa-solid fa-plus" 
                 label="Agregar producto" />
         </div>
@@ -116,6 +119,11 @@ export default {
             this.showDeleteConfirm = false;
             this.deletingCategory = false;
         },
+        async addNewProduct(){
+            this.addingProduct = true;
+            await this.uAMenuStore.addNewProduct(this.categoryElement.id);
+            this.addingProduct = false;
+        },
         async changeStatus(){
             this.changingStatus = true;
             await this.uAMenuStore.changeCategoryStatus(this.categoryElement.id);
@@ -130,6 +138,7 @@ export default {
             showDeleteConfirm: ref(false),
             deletingCategory: ref(false),
             changingStatus: ref(false),
+            addingProduct: ref(false),
             uAMenuStore
         }
     }

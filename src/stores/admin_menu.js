@@ -33,10 +33,13 @@ export const useAdminMenuStore = defineStore('admin_menu', {
         setProductToDelete(product){
             this.product_to_delete = product;
         },
-        async copyProductToCategory(product, category_copy){
+        async copyProductToCategory(product_id, category_copy){
             try{
                 
-                const data = await uchipRequest.post('admin/menu/categories/update-order');
+                const data = await uchipRequest.post('admin/menu/products/duplicate',{
+                    product_id: product_id,
+                    category_id: category_copy
+                });
                 if (data.status == 'success') {
                     Notify.create({
                         type: 'positive',
@@ -47,33 +50,31 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                     });
                     const cat_index = this.menu_items.findIndex((cat) => cat.id == category_copy);
                     //const product = this.menu_items[cat_index].products.find((pr) => pr.id == product_id);
-                    this.menu_items[cat_index].products.push({
-                        ...product,
-                        name: product.name + ' (copy)',
-                        id: 200,
-                        order:20
-                    });
-                    console.log({
-                        ...product,
-                        name: product.name + ' (copy)',
-                        id: 200,
-                        order: 20
-                    });
+                    this.menu_items[cat_index].products.push(data.product);
                 }
             } catch (error) {
                 console.log(error)
             }
         },
-        async updateProductName(category_id, product_id, new_name){
+        async updateProductInfo(category_id, product_id, new_val, type){
             try{
                 const cat_index = this.menu_items.findIndex((cat) => cat.id == category_id);
                 const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == product_id);
-                this.menu_items[cat_index].products[pr_index].name = new_name;
+                if(type === 'name'){
+                    this.menu_items[cat_index].products[pr_index].name = new_val;
+                }else{
+                    this.menu_items[cat_index].products[pr_index].description = new_val;
+                }
+                
                 if (this.timeout_id !== null) {
                     clearTimeout(this.timeout_id);
                 }
                 this.timeout_id = setTimeout(async () => {
-                    const data = await uchipRequest.post('admin/menu/categories/update-order');
+                    const data = await uchipRequest.post('admin/menu/products/info/update', {
+                        type: type === undefined ? 'description' : type,
+                        product_id: product_id,
+                        new_val: new_val === null ? '' : new_val,
+                    });
                     if (data.status == 'success') {
                         Notify.create({
                             type: 'positive',
@@ -84,6 +85,41 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                         });
                     }
                 }, 450);
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async updateProductAdditionalsOrder(category_id, product_id, new_orders){
+            try{
+                let additionals = [];
+                let _request = [];
+                new_orders.forEach((add, index) => {
+                    const new_order = index + 1;
+                    additionals.push({
+                        ...add,
+                        order: new_order
+                    });
+                    _request.push({
+                        id: add.id,
+                        order: new_order
+                    });
+                })
+                const cat_index = this.menu_items.findIndex((cat) => cat.id == category_id);
+                const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == product_id);
+                this.menu_items[cat_index].products[pr_index].additionals = additionals;
+                const data = await uchipRequest.post('admin/menu/products/additionals/order', {
+                    product_id: product_id,
+                    new_order: _request
+                });
+                if (data.status == 'success') {
+                    Notify.create({
+                        type: 'positive',
+                        color: 'positive',
+                        timeout: 2500,
+                        position: 'top-right',
+                        message: 'Cambios guardados con exito'
+                    });
+                }
             } catch (error) {
                 console.log(error)
             }
@@ -102,7 +138,11 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                     clearTimeout(this.timeout_id);
                 }
                 this.timeout_id = setTimeout(async () => {
-                    const data = await uchipRequest.post('admin/menu/categories/update-order');
+                    const data = await uchipRequest.post('admin/menu/products/price/update', {
+                        product_id: product_id,
+                        price: new_price,
+                        type: discount === undefined ? 'price' : 'discount',
+                    });
                     if (data.status == 'success') {
                         Notify.create({
                             type: 'positive',
@@ -117,7 +157,7 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                 console.log(error)
             }
         },
-        async updateProductDescription(category_id, product_id, new_description){
+        /*async updateProductDescription(category_id, product_id, new_description){
             try{
                 const cat_index = this.menu_items.findIndex((cat) => cat.id == category_id);
                 const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == product_id);
@@ -140,7 +180,7 @@ export const useAdminMenuStore = defineStore('admin_menu', {
             } catch (error) {
                 console.log(error)
             }
-        },
+        },*/
         async setCategoriesMap(new_map){
             //this.loading = true;
             let categories = [];
@@ -194,8 +234,8 @@ export const useAdminMenuStore = defineStore('admin_menu', {
             })
             this.menu_items[cat_index].products = products;
             try {
-                const data = await uchipRequest.post('admin/menu/categories/update-order', {
-                    new_order_map: products_request
+                const data = await uchipRequest.post('admin/menu/categories/products/update-order', {
+                    new_order_map: products_request,
                 });
                 if (data.status == 'success') {
                     Notify.create({
@@ -211,6 +251,24 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                 console.log(error)
             }
             //this.loading = false;
+        },
+        async updateImage(base64, product_id) {
+            const data = await uchipRequest.post('admin/menu/products/image/update', {
+                base64_image: base64,
+                product_id: product_id
+            });
+            if (data.status == 'success') {
+                const cat_index = this.menu_items.findIndex((cat) => cat.id == data.category_id);
+                const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == data.product_id);
+                this.menu_items[cat_index].products[pr_index].image = data.image_name;
+                Notify.create({
+                    type: 'positive',
+                    color: 'positive',
+                    timeout: 2500,
+                    position: 'top-right',
+                    message: 'Cambios guardados con exito'
+                });
+            }
         },
         async loadMenuInformation(){
             this.loading = true;
@@ -281,11 +339,11 @@ export const useAdminMenuStore = defineStore('admin_menu', {
         },
         async deleteProduct(){
             try {
-                const data = await uchipRequest.post('admin/menu/categories/create');
+                const data = await uchipRequest.post('/admin/menu/products/delete', {
+                    id: this.product_to_delete.product_id
+                });
                 if (data.status == 'success') {
                     const cat_index = this.menu_items.findIndex((cat) => cat.id == this.product_to_delete.category_id);
-                    console.log(this.menu_items[cat_index]);
-                    //const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == product_id);
                     this.menu_items[cat_index].products = this.menu_items[cat_index].products.filter((prod) => prod.id != this.product_to_delete.product_id);
                     //this.menu_items = this.menu_items.filter((item_cat) => item_cat.id != category_id);
                     Notify.create({
@@ -296,6 +354,28 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                         message: 'El producto se ha eliminado con exito.'
                     })
                     this.product_to_delete =  null;
+                }
+            }
+            catch (error) {
+                console.log(error)
+            }
+        },
+        async addNewProduct(category_id){
+            try {
+                const data = await uchipRequest.post('/admin/menu/products/create', {
+                    category_id: category_id
+                });
+                if (data.status == 'success') {
+                    const cat_index = this.menu_items.findIndex((cat) => cat.id == category_id);
+                    this.menu_items[cat_index].products.push(data.product);
+                    //this.menu_items = this.menu_items.filter((item_cat) => item_cat.id != category_id);
+                    Notify.create({
+                        type: 'positive',
+                        color: 'positive',
+                        timeout: 3500,
+                        position: 'top-right',
+                        message: 'El producto se ha agregado con exito.'
+                    })
                 }
             }
             catch (error) {
@@ -331,6 +411,13 @@ export const useAdminMenuStore = defineStore('admin_menu', {
             catch (error) {
                 console.log(error)
             }
+        },
+        async removeProductAssociation(product_id, additional_id) {
+            await this.updateProductAdditionals({
+                product_id: product_id,
+                type: 'remove',
+                category_id: additional_id
+            });
         },
         async updateProductAdditionals(change){
             try {
@@ -402,12 +489,16 @@ export const useAdminMenuStore = defineStore('admin_menu', {
         },
         async changeProductStatus(category_id, product_id){
             try {
-
-                const data = await uchipRequest.post('admin/menu/categories/changestatus');
+                const cat_index = this.menu_items.findIndex((cat) => cat.id == category_id);
+                const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == product_id);
+                const new_val = this.menu_items[cat_index].products[pr_index].deleted_at !== null;
+                const data = await uchipRequest.post('admin/menu/products/status/update', {
+                    product_id: product_id,
+                    new_val: new_val,
+                });
                 if (data.status == 'success') {
-                    const cat_index = this.menu_items.findIndex((cat) => cat.id == category_id);
-                    const pr_index = this.menu_items[cat_index].products.findIndex((pr) => pr.id == product_id);
-                    this.menu_items[cat_index].products[pr_index].deleted_at = this.menu_items[cat_index].products[pr_index].deleted_at === null ? true : null;
+                   
+                    this.menu_items[cat_index].products[pr_index].deleted_at = !new_val ? true : null;
                     Notify.create({
                         type: 'positive',
                         color: 'positive',

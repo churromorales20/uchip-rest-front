@@ -15,15 +15,7 @@
             <draggable v-else v-model="productAdditionals" :group="'addtionals_product_' + productAdditionals.id"
                 @start="drag = true" @end="drag = false" item-key="id">
                 <template #item="{ element }">
-                    <div class="admin-menu-additional-item">
-                        <q-chip square icon="fa-solid fa-grip-vertical">
-                            <div class="admin-menu-additional-item-name">{{ element.name }}</div>
-                            <q-btn outline class="text-admin-default q-ml-sm" size="xs" padding="0"
-                                icon="fa-solid fa-gears" />
-                            <q-btn outline size="xs" padding="0" icon="fa-solid fa-trash"
-                                class="text-admin-default q-ml-sm" />
-                        </q-chip>
-                    </div>
+                    <AdminAdditionalInProduct :element="element"/>
                 </template>
             </draggable>
             <div class="admin-menu-additional-item-add">
@@ -44,29 +36,40 @@ import draggable from 'vuedraggable'
 import { ref } from 'vue'
 import { useAdminMenuStore } from 'stores/admin_menu'
 import { useAdminAdditionalsStore } from 'stores/admin_additionals';
+import AdminAdditionalInProduct from './AdditionalInProduct.vue';
 export default {
     name: 'AdminProductAdditionals',
     props: ['productItem'],
     components: {
-        draggable
+        draggable,
+        AdminAdditionalInProduct
     },
     computed: {
         productAdditionals: {
             get() {
-                return this.productItem.additionals;
+                return this.productItem.additionals
             },
-            set(newName) {
-                //this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
+            set(neworder) {
+                this.uAMenuStore.updateProductAdditionalsOrder(this.productItem.category_id, this.productItem.id, neworder);
                 //this.$store.commit('updateList', value)
             }
         },
     },
     methods: {
-        showDialog(){
+        showDialog(category_id) {
             if (this.addStore.additional_list.length === 0) {
                 this.addStore.loadData();
             }
-            this.addStore.showProductDialog(this.productItem);
+            console.log(this.productItem);
+            this.addStore.showProductDialog({
+                ...this.productItem,
+                category_display: category_id !== undefined ? category_id : null
+            });
+        },
+    },
+    provide() {
+        return {
+            pItem: this.productItem
         }
     },
     setup() {
@@ -76,7 +79,6 @@ export default {
         return {
             uAMenuStore,
             addStore
-            //changingStatus: ref(false),
         }
     }
 }

@@ -16,6 +16,9 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
         newCategoryItem: (state) => {
             return state.additional_list.find((add) => add?.type_ui === 'new_item');
         },
+        categoryDisplay: (state) => {
+            return state.product?.category_display !== undefined ? state.product.category_display : null;
+        },
         thereIsNewCategory: (state) => {
             return state.additional_list.findIndex((add) => add?.type_ui === 'new_item') >= 0;
         },
@@ -51,7 +54,6 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                 let associateds = [];
                 let others = [];
                 const prod_additionals = state.product.additionals;
-                console.log(state.additional_list);
                 state.additional_list.forEach((add) => {
                     if (add?.type_ui !== 'new_item'){
                         if (prod_additionals.findIndex((pradd) => pradd.id === add.id) >= 0) {
@@ -107,7 +109,6 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                         ...data.category,
                         type_ui: 'new_item'
                     });
-                    console.log(this.additional_list);
                     this.lastTransactionOk = true;
                     Notify.create({
                         type: 'positive',
@@ -135,7 +136,6 @@ export const useAdminAdditionalsStore = defineStore('admin_additionals', {
                         ...data.category,
                         type_ui: 'new_item'
                     });
-                    console.log(this.additional_list);
                     this.lastTransactionOk = true;
                     Notify.create({
                         type: 'positive',

@@ -1,12 +1,11 @@
 <template>
     <div class="admin-menu-product-item row">
-        <div class="col-1">
-            <div 
-                class="admin-menu-product-item-image"
-                :style="{ 'background-image': 'url(' + $images_path + productItem.image + ')' }">
-            </div>
+        <div class="col-2 admin-menu-product-item-image">
+            <AdminProductImage 
+            :imagePath="productItem.image != '' ? $images_path + productItem.image : null"
+            :productId="productItem.id" />
         </div>
-        <div class="col-11">
+        <div class="col-10">
             <div class="row admin-menu-product-item-header">
                 <div class="col-md-3 admin-menu-product-item-nameinput">
                     <q-input filled v-model="productName" label="Nombre del producto:" maxlength="40" :dense="true" stack-label />
@@ -17,11 +16,11 @@
                         outline 
                         :loading="changingStatus" 
                         :disable="changingStatus" 
-                        :color="productItem.deleted_at === null ? 'positive' : 'admin-error'"
+                        :color="isActive ? 'positive' : 'admin-error'"
                         size="sm" 
                         @click="changeStatus()" 
-                        :icon="productItem.deleted_at === null ? 'fa-solid fa-check' : 'fa-solid fa-ban'" 
-                        :label="productItem.deleted_at === null ? 'Disponible' : 'No disponible'" />
+                        :icon="isActive ? 'fa-solid fa-check' : 'fa-solid fa-ban'" 
+                        :label="isActive ? 'Disponible' : 'No disponible'" />
                     <!--<q-btn outline color="admin-default" size="sm" icon="fa-solid fa-copy" class="q-ml-sm"/>-->
                     <q-btn-dropdown 
                         color="admin-default"
@@ -89,21 +88,25 @@
 import draggable from 'vuedraggable'
 import { ref } from 'vue'
 import AdminProductAdditionals from './Additionals.vue';
+import AdminProductImage from './ProductImage.vue';
 import { useAdminMenuStore } from 'stores/admin_menu'
 export default {
     name: 'AdminProduct',
     props: ['categoryId','productItem'],
     components:{
-        //draggable,
+        AdminProductImage,
         AdminProductAdditionals
     },
     computed: {
+        isActive(){
+            return this.productItem.deleted_at === null || this.productItem.deleted_at === undefined;
+        },
         productName: {
             get() {
                 return this.productItem.name;
             },
             set(newName) {
-                this.uAMenuStore.updateProductName(this.categoryId, this.productItem.id, newName);
+                this.uAMenuStore.updateProductInfo(this.categoryId, this.productItem.id, newName, 'name');
             }
         },
         productDescription: {
@@ -111,7 +114,7 @@ export default {
                 return this.productItem.description;
             },
             set(newDesc) {
-                this.uAMenuStore.updateProductDescription(this.categoryId, this.productItem.id, newDesc);
+                this.uAMenuStore.updateProductInfo(this.categoryId, this.productItem.id, newDesc);
             }
         },  
         price: {
@@ -140,7 +143,7 @@ export default {
         },
         async copyProduct(category_id) {
             this.copyingProduct = true;
-            await this.uAMenuStore.copyProductToCategory(this.productItem, category_id);
+            await this.uAMenuStore.copyProductToCategory(this.productItem.id, category_id);
             //this.$refs._delete_confirm_dialog_.hide()
             this.copyingProduct = false;
         },

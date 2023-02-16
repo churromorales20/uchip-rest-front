@@ -19,6 +19,7 @@
             </q-card>
         </q-dialog>
         <AdminAdditionalsDialog />
+        <ProductImageSelector />
         <draggable 
             class="list-group"
             v-model="categoriesList" 
@@ -53,13 +54,15 @@ import draggable from 'vuedraggable'
 import { ref } from 'vue'
 import { useAdminMenuStore } from 'stores/admin_menu'
 import AdminMenuCategory from './AdminMenuCategory.vue';
+import ProductImageSelector from './menu/ProductImageSelector.vue';
 import AdminAdditionalsDialog from './menu/AdditionalsDialog.vue';
 export default {
     name: 'AdminMenu',
     components:{
         draggable,
         AdminMenuCategory,
-        AdminAdditionalsDialog
+        AdminAdditionalsDialog,
+        ProductImageSelector
     },
     computed: {
         dragOptions() {
