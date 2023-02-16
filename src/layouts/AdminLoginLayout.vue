@@ -15,7 +15,7 @@ import { useAdminUserStore } from 'stores/admin_user';
 export default {
   setup(){
     const uAdminStore = useAdminUserStore();
-    uAdminStore.loadCsrfCookie();
+    uAdminStore.checkUser();
     return {
       uAdminStore
     }

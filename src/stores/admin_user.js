@@ -65,9 +65,10 @@ export const useAdminUserStore = defineStore('admin_user', {
         },
         
         setUserData(response){
-            console.log('PUCALPA');
             this.admin_menu_items = menuConstructor(response.menu_items, 0);
-            console.log(this.admin_menu_items);
+            if(response?.token !== undefined){
+                localStorage.setItem("user_admin_token", response.token);
+            }
         },
         async makeLogin(){
             this.is_loggin = true;
@@ -96,9 +97,11 @@ export const useAdminUserStore = defineStore('admin_user', {
                     this.is_logged_in = true;
                     this.setUserData(data);
                 }
+                this.csrf_loaded = true;
             }
             catch (error) {
-                console.log(error)
+                console.log(error);
+                this.csrf_loaded = true;
             }
             this.is_loggin = false;
         }
