@@ -4,9 +4,19 @@
         <div class="row artisan-products">
             <div class="col-12 col-md-6" v-for="(product, index_product) in category.products" :key="index_product">
                 <div class="artisan-products-item">
-                    <div class="artisan-products-item-image"
-                        :style="{ 'background-image': 'url(https://d3lryrecr523dy.cloudfront.net/companies/products/images/800/' + product.image + ')' }">
-                        &nbsp;
+                    <div class="artisan-products-item-image">
+                        <q-img v-if="product.image != ''" :src="$images_path + product.image">
+                            <template v-slot:error>
+                                <div class="absolute-full flex flex-center admin-menu-product-item-image-error">
+                                    <q-icon name="fa-solid fa-circle-exclamation" />
+                                    <h5>Error cargando imagen</h5>
+                                </div>
+                            </template>
+                        </q-img>
+                        <div v-else class="flex flex-center admin-menu-product-item-image-uploader">
+                            <q-icon name="fa-solid fa-cloud-arrow-up" />
+                            <h5>Cagar imagen</h5>
+                        </div>
                     </div>
                     <div class="artisan-products-item-description">
                         <div class="artisan-products-item-header">

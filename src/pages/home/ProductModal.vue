@@ -4,7 +4,17 @@
             <q-card-section>
                 <div class="artisan-product-section">
                     <div class="artisan-product-item-image">
-                    <img v-bind:src="'https://d3lryrecr523dy.cloudfront.net/companies/products/images/800/' + pStore.product_featured.image">
+                        <q-img v-if="pStore.product_featured.image != ''" :src="$images_path + pStore.product_featured.image">
+                            <template v-slot:error>
+                                <div class="absolute-full flex flex-center admin-menu-product-item-image-error">
+                                    <q-icon name="fa-solid fa-circle-exclamation" />
+                                    <h5>Error cargando imagen</h5>
+                                </div>
+                            </template>
+                        </q-img>
+                        <div v-else class="flex flex-center admin-menu-product-item-image-uploader">
+                            <q-icon name="fa-solid fa-cloud-arrow-up" />
+                        </div>
                     
                     </div>
                     <div class="artisan-product-container">

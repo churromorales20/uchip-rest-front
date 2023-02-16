@@ -9,8 +9,18 @@
         <li v-for="(item, item_index) in oStore.itemsDetail" :key="'_order_item_' + item_index">
           <div class="order-view-items-ul-item">
             <div class="order-view-item-content">
-              <div class="order-view-item-content-image" :style="{ 'background-image': 'url(https://d3lryrecr523dy.cloudfront.net/companies/products/images/800/' + item.image + ')' }">
-
+              <div class="order-view-item-content-image">
+                <q-img v-if="item.image != ''" :src="$images_path + item.image">
+                  <template v-slot:error>
+                    <div class="absolute-full flex flex-center admin-menu-product-item-image-error">
+                      <q-icon name="fa-solid fa-circle-exclamation" />
+                      <h5>Error cargando imagen</h5>
+                    </div>
+                  </template>
+                </q-img>
+                <div v-else class="flex flex-center admin-menu-product-item-image-uploader">
+                  <q-icon name="fa-solid fa-cloud-arrow-up" />
+                </div>
               </div>
               <div class="order-view-item-content-desc">
                 <h6>{{ item.name }}</h6>

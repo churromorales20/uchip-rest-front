@@ -4,8 +4,8 @@ class UchipRequest {
         //this.api_path = 'http://localhost:8000/api/'; //TODO: Get this value from env file
         this.axios = axios.create({
             //withCredentials: true,
-            baseURL: 'https://uchip.artisanburgers.pe/api/'
-            //baseURL: 'http://localhost:8000/api/'
+            //baseURL: 'https://uchip.artisanburgers.pe/api/'
+            baseURL: 'http://localhost:8000/api/'
         })
     }
     async loadCsrfCookie(){

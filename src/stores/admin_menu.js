@@ -198,7 +198,7 @@ export const useAdminMenuStore = defineStore('admin_menu', {
             })
             this.menu_items = categories;
             try {
-                const data = await uchipRequest.post('admin/menu/categories/update-order', {
+                const data = await uchipRequest.post('admin/menu/categories/order/update', {
                     new_order_map: products_request
                 });
                 if (data.status == 'success') {
@@ -321,7 +321,9 @@ export const useAdminMenuStore = defineStore('admin_menu', {
         },
         async deleteCategory(id){
             try {
-                const data = await uchipRequest.post('admin/menu/categories/create');
+                const data = await uchipRequest.post('admin/menu/categories/delete',{
+                    category_id: id,
+                });
                 if (data.status == 'success') {
                     this.menu_items = this.menu_items.filter((item_cat) => item_cat.id != id);
                     Notify.create({
@@ -391,7 +393,10 @@ export const useAdminMenuStore = defineStore('admin_menu', {
                     clearTimeout(this.timeout_id);
                 }
                 this.timeout_id = setTimeout(async () => {
-                    const data = await uchipRequest.post('admin/menu/categories/create');
+                    const data = await uchipRequest.post('admin/menu/categories/name/update',{
+                        category_id: id,
+                        new_name: newname
+                    });
                     if (data.status == 'success') {
                         Notify.create({
                             type: 'positive',
@@ -468,12 +473,17 @@ export const useAdminMenuStore = defineStore('admin_menu', {
         },
         async changeCategoryStatus(id){
             try {
-                const data = await uchipRequest.post('admin/menu/categories/changestatus');
+                const cat_index = this.menu_items.findIndex((cat) => cat.id == id);
+                const new_status = this.menu_items[cat_index].deleted_at !== null;
+                const data = await uchipRequest.post('admin/menu/categories/status/update',{
+                    category_id: id,
+                    new_status: new_status
+                });
                 if (data.status == 'success') {
                     //this.menu_items = this.menu_items.filter((item_cat) => item_cat.id != id);
                     const cat_index = this.menu_items.findIndex((cat) => cat.id == id);
                     //console.log(this.menu_items);
-                    this.menu_items[cat_index].deleted_at = this.menu_items[cat_index].deleted_at === null ? true : null;
+                    this.menu_items[cat_index].deleted_at = new_status ? null : true;
                     Notify.create({
                         type: 'positive',
                         color: 'positive',
