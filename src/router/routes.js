@@ -3,15 +3,14 @@ import IndexPage from 'pages/IndexPage.vue'
 import AdminLogin from 'pages/admin/Login.vue'
 import AdminDashboard from 'pages/admin/AdminDashboard.vue'
 import OrdersView from 'src/pages/orders/OrdersView.vue'
-import AdminMenu from 'pages/admin/AdminMenu.vue'
 import auth from './middlewares/auth'
 const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => IndexPage },
-      { path: 'order', component: () => OrdersView }
+      { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: 'order', component: () => import('pages/orders/OrdersView.vue') }
     ]
   },
   {
@@ -20,19 +19,19 @@ const routes = [
     children: [
       { 
         path: '', 
-        component: () => AdminDashboard,
+        component: () => import('pages/admin/AdminDashboard.vue'),
         name: 'adminDashboard'
       },
       { 
         path: 'menu', 
-        component: () => AdminMenu,
+        component: () => import('pages/admin/AdminMenu.vue'),
         name: 'adminMenu'
       },
-      { 
+      /*{ 
         path: 'orders/dashboard', 
         component: () => AdminMenu,
         name: 'admimOrderDashboard'
-      },
+      },*/
     ],
     meta: {
       middlewares: [auth]
@@ -44,7 +43,7 @@ const routes = [
     children: [
       {
         path: '',
-        component: () => AdminLogin,
+        component: () => import('pages/admin/Login.vue'),
         name: 'adminLogin',
       },
     ],

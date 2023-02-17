@@ -41,8 +41,9 @@ import { useOrdersStore } from 'stores/orders';
 import { useProductsStore } from 'stores/products';
 import OrderModal from '../pages/orders/OrderModal.vue';
 
-export default defineComponent({
+export default {
   name: 'MainLayout',
+  displayName: 'MainLayout',
   components: {
     OrderModal,
   },
@@ -68,8 +69,5 @@ export default defineComponent({
       }
     }
   }
-})
+}
 </script>
-<style lang="sass">
-
-</style>

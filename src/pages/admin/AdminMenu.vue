@@ -52,6 +52,7 @@ import AdminAdditionalsDialog from './menu/AdditionalsDialog.vue';
 import AdminBreadCrumbs from '../../components/admin/BreadCrumbs.vue';
 export default {
     name: 'AdminMenu',
+    displayName: 'AdminMenu',
     components:{
         draggable,
         AdminMenuCategory,

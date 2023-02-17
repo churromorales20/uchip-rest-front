@@ -52,6 +52,8 @@ import { ref } from 'vue'
 import { useAdminUserStore } from 'stores/admin_user'
 
 export default {
+  name: 'AdminLayout',
+  displayName: 'AdminLayout',
   setup() {
     const leftDrawerOpen = ref(true)
     const uAdmin = useAdminUserStore()
