@@ -11,7 +11,7 @@ import middlewarePipeline from './middlewares/middleware-pipeline'
  * async/await or return a Promise which resolves
  * with the Router instance.
  */
-
+import { useAdminUserStore } from 'stores/admin_user'
 export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
@@ -26,6 +26,13 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
   })
+  Router.afterEach((to, from) => {
+    if (to.path.startsWith('/admin')){
+      const store = useAdminUserStore()
+      store.setBreadCrumbs(to.path);
+    }
+  })
+
   Router.beforeEach((to, from, next) => {
 
     //console.log(to.meta);

@@ -25,9 +25,16 @@
             <h5 class="admin-module-title">
                 Tu menu
             </h5>
-            <draggable class="list-group" v-model="categoriesList" group="categories_menu" @start="drag=true" @end="drag=false"
-                v-bind="dragOptions" item-key="id">
-                <template #item="{element}">
+            <draggable 
+                class="list-group"
+                item-key="order"
+                group="categories_menu"
+                :component-data="{ tag: 'ul', name: 'flip-list', type: 'transition' }"
+                v-model="categoriesList"
+                v-bind="dragOptions"
+                @start="isDragging = true"
+                @end="isDragging = false" >
+                <template #item="{ element }">
                     <li class="list-group-item">
                         <AdminMenuCategory :categoryElement="element"></AdminMenuCategory>
                     </li>
@@ -101,6 +108,7 @@ export default {
         return {
             uAMenuStore,
             deletingProduct: ref(false),
+            drag: ref(false),
         }
     }
 }
@@ -118,6 +126,7 @@ export default {
     opacity: 0.5;
     background: #c8ebfb;
 }
+
 .list-group {
     min-height: 20px;
 }
@@ -130,5 +139,4 @@ export default {
 
 .list-group-item i {
     cursor: pointer;
-}
-</style>
+}</style>

@@ -1,13 +1,14 @@
 <template>
-    <div class="admin-breadcrumbs">
-        <q-breadcrumbs class="text-grey" active-color="purple">
+    <div class="admin-breadcrumbs" v-show="userStore.navigationBreadCrumbs.length > 0">
+        <q-breadcrumbs class="text-grey">
             <template v-slot:separator>
-                <q-icon size="1.2em" name="arrow_forward" color="purple" />
+                <q-icon size="1.2em" name="arrow_forward" />
             </template>
-        
-            <q-breadcrumbs-el label="Home" icon="home" />
-            <q-breadcrumbs-el label="Components" icon="widgets" />
-            <q-breadcrumbs-el label="Breadcrumbs" icon="navigation" />
+
+            <q-breadcrumbs-el 
+                v-for="item in userStore.navigationBreadCrumbs" :key="'_bread_crumb_item_' + item.id" 
+                :label="item.title" 
+                :icon="item.icon" />
         </q-breadcrumbs>
     </div>
 </template>

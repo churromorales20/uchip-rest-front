@@ -26,9 +26,14 @@
                             @click="addNewAdditionalCategory()"
                             label="Nueva categoria" />
                     </div>
-                    <div v-if="addStore.thereIsNewCategory">
-                        <AdminAdditionalItem :isOpen="true" :add="addStore.newCategoryItem" />
-                    </div>
+                    <Transition 
+                        enter-active-class="animated fadeIn" 
+                        leave-active-class="animated fadeOut">
+                         <div v-if="addStore.thereIsNewCategory">
+                            <AdminAdditionalItem :isOpen="true" :add="addStore.newCategoryItem" />
+                        </div>
+                    </Transition>
+                   
                     <div v-for="(add, add_index) in addStore.list" :key="'_add_category_item_' + add_index + '_'" clickable v-ripple>
                         <h5 v-if="add.list_type === 'title'">{{ add.title }}</h5>
                         <p class="admin-additionals-not-linked" v-else-if="add.list_type === 'not_linked'">Aun no se ha vinculado este producto con ninguna categoria de adicionales.</p>

@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
 
-    <q-header elevated class="bg-secondary text-white">
+    <q-header elevated class="bg-admin-light text-white">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
@@ -41,6 +41,7 @@
     </q-drawer>
 
     <q-page-container class="admin-page-container">
+      <AdminOrderDialog />
       <router-view />
     </q-page-container>
 
@@ -50,10 +51,13 @@
 <script>
 import { ref } from 'vue'
 import { useAdminUserStore } from 'stores/admin_user'
-
+import AdminOrderDialog from '../components/admin/OrderDialog.vue';
 export default {
   name: 'AdminLayout',
   displayName: 'AdminLayout',
+  components:{
+    AdminOrderDialog
+  },
   setup() {
     const leftDrawerOpen = ref(true)
     const uAdmin = useAdminUserStore()

@@ -27,11 +27,11 @@ const routes = [
         component: () => import('pages/admin/AdminMenu.vue'),
         name: 'adminMenu'
       },
-      /*{ 
-        path: 'orders/dashboard', 
-        component: () => AdminMenu,
-        name: 'admimOrderDashboard'
-      },*/
+      { 
+        path: 'orders/live', 
+        component: () => import('pages/admin/orders/Live.vue'),
+        name: 'admimOrdersLive'
+      },
     ],
     meta: {
       middlewares: [auth]
