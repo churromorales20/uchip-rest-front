@@ -4,8 +4,8 @@ class UchipRequest {
         //this.api_path = 'http://localhost:8000/api/'; //TODO: Get this value from env file
         this.axios = axios.create({
             //withCredentials: true,
-            baseURL: 'https://uchip.artisanburgers.pe/api/'
-            //: 'http://localhost:8000/api/'
+            //baseURL: 'https://uchip.artisanburgers.pe/api/'
+            baseURL: 'http://localhost:8000/api/'
         })
     }
     async loadCsrfCookie(){
@@ -30,7 +30,22 @@ class UchipRequest {
         });
         return data_response.data;
     }
-
+    async broadcastAuth(socketId, channelName, callback){
+        const user_admin_token = localStorage.getItem("user_admin_token");
+        this.axios.post('broadcasting/auth', JSON.stringify({
+            socket_id: socketId,
+            channel_name: channelName
+        }), {
+            headers: {
+                'Authorization': `Bearer ${user_admin_token}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            callback(null, response.data);
+        }).catch(error => {
+            callback(error);
+        });
+    }
     async post(end_point, data){
         //let data = [];
         const user_admin_token = localStorage.getItem("user_admin_token");
@@ -42,7 +57,6 @@ class UchipRequest {
                 'Content-Type': 'application/json'
             }
         });
-        console.log(data_response.data);
         return data_response.data;
     }
 }

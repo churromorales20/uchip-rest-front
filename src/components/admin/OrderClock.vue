@@ -80,6 +80,9 @@ export default {
         //console.log('this.timeElapsed', this.timeElapsed);
         this.interval = setInterval(() => {
             this.timeElapsed++;
+            if(this.timeElapsed >= this.maxSeconds){
+                clearInterval(this.interval);
+            }
         }, 1000);
     },
     beforeUnmount() {

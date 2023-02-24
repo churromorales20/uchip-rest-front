@@ -41,25 +41,82 @@
             </div>
         </div>
         <div class="admin-module-container">  
-            <h5 class="admin-module-title">
-                Ordeness (filtros: X TODOS, EN EPSERA, EN PREPARACION, FINALIZADOS, MAS FILTROS)
-            </h5>
+            <div class="admin-orders-live-filters">
+                 <h5 class="admin-module-title">
+                    Ordenes actuales
+                </h5>
+                <div style="margin-left: 2rem;">
+                    <q-toggle
+                        class="admin-orders-live-filters-toggle"
+                        v-model="allFilters"
+                        checked-icon="check"
+                        color="admin-ligth"
+                        label="Todos"
+                        unchecked-icon="clear"
+                    />
+                    <q-toggle
+                        class="admin-orders-live-filters-toggle"
+                        v-model="liveFilters"
+                        val="pending"
+                        checked-icon="fa-regular fa-hourglass-half"
+                        color="light-blue-13"
+                        label="Pendientes"
+                        unchecked-icon="fa-regular fa-hourglass-half"
+                    />
+                    <q-toggle
+                        class="admin-orders-live-filters-toggle"
+                        v-model="liveFilters"
+                        val="accepted"
+                        checked-icon="fa-solid fa-check-double"
+                        color="light-blue-13"
+                        label="Aceptados"
+                        unchecked-icon="fa-solid fa-check-double"
+                    />
+                    <q-toggle
+                        v-model="liveFilters"
+                        val="rejected"
+                        checked-icon="fa-solid fa-ban"
+                        color="light-blue-13"
+                        label="Rechazados"
+                        unchecked-icon="fa-solid fa-ban"
+                    />
+                    <q-toggle
+                        v-model="liveFilters"
+                        val="ended"
+                        checked-icon="fa-regular fa-calendar-check"
+                        color="light-blue-13"
+                        label="Finalizados"
+                        unchecked-icon="fa-regular fa-calendar-check"
+                    />
+                </div>
+            </div>
             <div class="row admin-orders-panel">
-               <OrderBox 
-                    v-for="(order, order_index) in ordersStore.liveOrders" 
-                    :orderIndex="order_index"
-                    :key="'_live_order_' + order.id"/>
+                <TransitionGroup 
+                    leave-active-class="animated zoomOut"
+                    enter-active-class="animated zoomIn">
+                    <OrderBox 
+                            v-for="(order, order_index) in ordersStore.liveOrders" 
+                            :orderIndex="order_index"
+                            :key="'_live_order_' + order.id"/>
+                </TransitionGroup>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import { useRoute } from 'vue-router'
 import { ref } from 'vue'
 import { useAdminMenuStore } from 'stores/admin_menu'
 import { useAdminOrdersStore } from 'stores/admin_orders'
 import AdminBreadCrumbs from '../../../components/admin/BreadCrumbs.vue';
 import OrderBox from './OrderBox.vue';
+const defaultFilters = [
+    'pending',
+    'accepted',
+    'ended',
+    'rejected',
+];
 export default {
     name: 'AdminOrdersLive',
     displayName: 'AdminOrdersLive',
@@ -68,27 +125,57 @@ export default {
         AdminBreadCrumbs
     },
     computed: {
-        categoriesList: {
+        allFilters: {
             get() {
-                return this.uAMenuStore.menuCategories;
+                return this.ordersStore.liveFilters.length === defaultFilters.length;
             },
             set(newMap) {
-                this.uAMenuStore.setCategoriesMap(newMap);
-                //this.$store.commit('updateList', value)
+                if(newMap === true){
+                    this.ordersStore.setLiveFilters(defaultFilters);
+                }
+            }
+        },
+        liveFilters: {
+            get() {
+                return this.ordersStore.liveFilters;
+            },
+            set(newMap) {
+                this.ordersStore.setLiveFilters(newMap);
             }
         },
     },
+    inject: ['laravelEcho'],
     methods:{
         
+    },
+    mounted() {
+        this.ordersStore.showPendingOrder();
+        const eventCallBack = (e) => {
+            if(e.change !== undefined){
+                this.ordersStore.updateLiveOrder(e);
+            }else{
+                this.ordersStore.addLiveOrder(e.order);
+            }
+            
+        }
+        this.laravelEcho.private('admin-orders-live')
+            .listen('OrderUpdated', eventCallBack)
+            .listen('OrderLive', eventCallBack);
     },
     setup() {
         const uAMenuStore = useAdminMenuStore();
         const ordersStore = useAdminOrdersStore();
         ordersStore.loadLiveInformation();
+        const route = useRoute()
         return {
             uAMenuStore,
+            route,
             deletingProduct: ref(false),
-            timer: ref(70),
+            filters: ref([
+                'pending',
+                'accepted',
+                'ended',
+            ]),
             ordersStore
         }
     }

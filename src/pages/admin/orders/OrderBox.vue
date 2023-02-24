@@ -4,11 +4,16 @@
             <div class="admin-orders-panel-box-header">
                 <div>
                     <h5>Pedido: {{ orderItem.locator }}</h5>
-                    <h6><q-icon name="fa-solid fa-calendar-days"></q-icon> {{ orderItem.created_at }}</h6>
+                    <h6><q-icon name="fa-solid fa-calendar-days"></q-icon> {{ orderItem.formatted_created_at }}</h6>
                     <q-chip square color="admin-light" text-color="white" icon="fa-solid fa-motorcycle">Delivery</q-chip>
                 </div>
                 <div>
-                    <AdminOrderClock :timeCreatedAt="orderItem.time_created_at"/>
+                    <q-icon 
+                        :name="orderItem.status == 'rejected' ? 'fa-solid fa-ban' : 'fa-solid fa-lock'" 
+                        class="admin-order-box-icon-rejected"
+                        v-if="orderItem.status == 'rejected' || orderItem.status == 'ended'">
+                    </q-icon>
+                    <AdminOrderClock v-else :timeCreatedAt="orderItem.time_created_at"/>
                 </div>
             </div>
             <div class="admin-orders-panel-box-user">
@@ -23,47 +28,20 @@
                     :icon="paymentStatusUIData.icon">
                         {{ paymentStatusUIData.name }}
                 </q-chip>
-                <q-chip v-if="orderItem.status == 'accepted'" square color="amber-9" text-color="white" icon="fa-solid fa-hourglass-half">En espera</q-chip>
+                <q-chip 
+                    v-if="orderItem.status == 'accepted' || orderItem.status == 'ended'" 
+                    square 
+                    :color="storeStatusUIData.color" 
+                    text-color="white" 
+                    :icon="storeStatusUIData.icon">
+                    {{ storeStatusUIData.name }}
+                </q-chip>
             </div>
-            <div class="admin-orders-panel-box-buttons">
-                <q-btn 
-                    size="sm" 
-                    padding="sm"
-                    icon="fa-solid fa-list" 
-                    label="Ver detalles" 
-                    @click="ordersStore.setViewingOrder(orderItem)"
-                    color="admin-light" />
-                <q-btn-dropdown 
-                    size="sm" 
-                    padding="sm"
-                     
-                    class="middlebtn">
-                    <template v-slot:label>
-                        <div class="admin-orders-panel-box-buttons-label">
-                            <q-icon name="fa-solid fa-business-time" />
-                            <span>Status</span>
-                        </div>
-                    </template>
-                </q-btn-dropdown>
-                <q-btn-dropdown 
-                    size="sm" 
-                    padding="sm"
-                     
-                    color="admin-light">
-                    <template v-slot:label>
-                        <div class="admin-orders-panel-box-buttons-label">
-                            <q-icon name="fa-solid fa-credit-card" />
-                            <span>Pagos</span>
-                        </div>
-                    </template>
-                    <q-item>
-                        bnigo
-                    </q-item>
-                    <q-item>
-                        bnigo
-                    </q-item>
-                </q-btn-dropdown>
-            </div>
+            <AdminOrderBoxButtons 
+                :orderStatus="orderItem.status"
+                :orderPaymentStatus="orderItem.payment_status"
+                :orderStoreStatus="orderItem.store_status"
+                :orderId="orderItem.id"/>
             <div class="row admin-orders-panel-box-footer">
                 <div class="col-6">
                     <q-chip 
@@ -76,7 +54,7 @@
                 </div>
                 <div class="col-6" style="text-align:right;">
                     <h6>{{ orderItem.items_qty }} Items X</h6>
-                    <h4>Total: 56.69 S/.</h4>
+                    <h4>Total: <b>{{ $currencyFormatter(orderItem.total)}}</b></h4>
                 </div>
             </div>
         </div>
@@ -87,13 +65,15 @@
 import { ref } from 'vue'
 import { useAdminOrdersStore } from 'stores/admin_orders'
 import AdminOrderClock from '../../../components/admin/OrderClock.vue';
+import AdminOrderBoxButtons from '../../../components/admin/OrderBoxButtons.vue';
 
 export default {
     name: 'OrderBox',
     displayName: 'OrderBox',
     props: ['orderIndex'],
     components: {
-        AdminOrderClock
+        AdminOrderClock,
+        AdminOrderBoxButtons
     },
     computed: {
         orderItem(){
@@ -111,21 +91,61 @@ export default {
                 case 'accepted':
                     return {
                         icon: 'fa-solid fa-check',
-                        name: 'Pedido aceptado',
+                        name: 'Orden aceptada',
                         color: 'green-14'
                     }
                     break;
                 case 'ended':
                     return {
                         icon: 'fa-solid fa-check',
-                        name: 'Pedido finalizado',
+                        name: 'Orden finalizada',
                         color: 'admin-light'
                     }
                     break;
                 case 'rejected':
                     return {
                         icon: 'fa-solid fa-ban',
-                        name: 'Pedido rechazado',
+                        name: 'Orden rechazada',
+                        color: 'admin-warning'
+                    }
+                    break;
+            }
+            return this.ordersStore.liveOrders[this.orderIndex];
+        },
+        storeStatusUIData(){
+            switch (this.ordersStore.liveOrders[this.orderIndex].store_status) {
+                case 'waiting':
+                    return {
+                        icon: 'fa-solid fa-hourglass-half',
+                        name: 'Pendiente',
+                        color: 'orange-14'
+                    }
+                    break;
+                case 'preparing':
+                    return {
+                        icon: 'fa-solid fa-kitchen-set',
+                        name: 'En preparacion',
+                        color: 'green-14'
+                    }
+                    break;
+                case 'done':
+                    return {
+                        icon: 'fa-solid fa-check',
+                        name: 'Listo para entrega',
+                        color: 'admin-light'
+                    }
+                    break;
+                case 'delivering':
+                    return {
+                        icon: 'fa-solid fa-person-biking',
+                        name: 'Orden en camino',
+                        color: 'admin-light'
+                    }
+                    break;
+                case 'delivered':
+                    return {
+                        icon: 'fa-solid fa-person-circle-check',
+                        name: 'Orden entregada.',
                         color: 'admin-warning'
                     }
                     break;
@@ -136,7 +156,7 @@ export default {
             switch (this.ordersStore.liveOrders[this.orderIndex].payment_status) {
                 case 0:
                     return {
-                        icon: 'fa-solid fa-ban',
+                        icon: 'fa-solid fa-question',
                         name: 'No pagado',
                         color: 'admin-warning'
                     }
@@ -150,7 +170,7 @@ export default {
                     break;
                 case 2:
                     return {
-                        icon: 'fa-solid fa-check',
+                        icon: 'fa-solid fa-ban',
                         name: 'Pago rechazado',
                         color: 'red-14'
                     }
@@ -160,7 +180,9 @@ export default {
         },
     },
     methods: {
-
+        async changeStatus(){
+            //this.ordersStore.changeStatusById();
+        }
     },
     setup() {
         const ordersStore = useAdminOrdersStore();

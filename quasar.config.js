@@ -35,6 +35,8 @@ module.exports = configure(function (/* ctx */) {
       'google-maps',
       'mitter',
       'images-path',
+      //'echo',
+      'numeraljs',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -101,7 +103,7 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
-      https: true,
+      https: false,
       open: true // opens browser window automatically
     },
 

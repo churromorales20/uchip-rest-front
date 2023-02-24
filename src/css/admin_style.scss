@@ -39,22 +39,96 @@ $admin_error : #da2121;
     max-height: 500px;
     width: 100%;
 }
+
 .admin{
+    &-payment-status-option {
+        align-items: center;
+        color: #444;
+        i {
+            margin-right: 10px;
+        }
+    }
+    &-payment-status-option.accept {
+        background-color: $green-14;
+        color: #ffffff;
+    }
+    &-payment-status-option.reject {
+        background-color: $admin-warning;
+        color: #ffffff;
+    }
     &-breadcrumbs{
         padding: 20px 0px 20px 30px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid #efefef;
+    }
+    &-order{
+        &-box{
+            &-buttons{
+                &-payment{
+                    
+                }
+            }
+            &-icon-rejected{
+                font-size: 3.6rem;
+                color: #e0e0e0;
+            }
+        }
     }
     &-orders{
+        &-notification{
+            position: absolute;
+            right: 30px;
+            .q-fab__actions{
+                .q-icon{
+                    font-size: 1rem;
+                }
+            }
+            .q-btn__content{
+                flex: none;
+            }
+            >.q-btn{
+                height: 120px;
+                border: 2px solid $green-14;
+                border-top-width: 5px;
+                padding: 10px 25px;
+            }
+            &-new{
+                padding-left: 15px;
+                padding-right: 5px;
+                h5{
+                    margin: 0px;
+                    font-size:1.2rem;
+                    line-height:1.6rem;
+                    text-align: right;
+                    font-weight: 500;
+                }
+                h6{
+                    margin: 0px;
+                    font-size:.87rem;
+                    line-height:1.2rem;
+                    text-align: right;
+                    font-weight: 400;
+                }
+            }
+        }
         &-modal{
             padding: 0px;
             width: 500px;
             &-items{
                 padding: 0px 15px 15px;
+                max-height: 60vh;
+                overflow: auto;
                 &-name{
                     .comments{
+                        margin-left: 5px !important;
                         font-size:12px;
                         margin: 0px;
                         font-style: italic;
+                    }
+                    ul{
+                        margin-left:5px !important;
+                        li{
+                            font-size: 12px;
+                        }
                     }
                 }
                 &-total{
@@ -63,10 +137,27 @@ $admin_error : #da2121;
                 }
                 &-totalizer{
                     text-align: right;
-                    padding-top: 3px;
+                    padding-top: 10px;
                     border-top: 1px solid #efefef;
-                    margin-top: 3px;
+                    margin-top: 10px;
                     font-size: 1.2rem;
+                    display: flex;
+                    flex-flow: column;
+                    .fulltotalizer{
+                        display: flex;
+                        flex-flow: column;
+                        font-size: 1rem;
+                        margin-bottom: 10px;
+                        >span{
+                            line-height: 1.2rem;
+                        }
+                    }
+                    a{
+                        font-size: 0.87rem;
+                    }
+                    >span{
+                        line-height: 1rem;
+                    }
                 }
                 h6{
                     margin:0px;
@@ -87,8 +178,9 @@ $admin_error : #da2121;
                 box-shadow: none;
                 width: 100%;
                 &-buttons{
-                    padding:0px !important;
-                    margin-top: 15px;
+                    padding: 10px 0px 0px !important;
+                    /* margin-top: 15px; */
+                    border-top: 1px solid #efefef;
                 }
             }
             &-statuses{
@@ -107,7 +199,7 @@ $admin_error : #da2121;
         }
         &-preview{
             padding: 15px 30px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #efefef;
             &-icon{
                 margin-right: 1rem;
                 background-color: #da2121;
@@ -138,7 +230,7 @@ $admin_error : #da2121;
             }
         }
         &-panel{
-            padding-top: 15px;
+            padding-top: 10px;
             > .col-3:nth-child(4n+1) {
                 padding-right: 6px;
             }
@@ -158,13 +250,13 @@ $admin_error : #da2121;
                 //height: 15rem;
                 /* align-items: center; */
                 justify-content: center;
-                border: 1px solid #e0e0e0;
+                border: 1px solid #efefef;
                 border-radius: 5px;
                 /* padding: 20px;*/
                 color: #444;
                 box-shadow: 1px 1px 5px rgb(0 0 0 / 30%);
                 &-user{
-                    border-bottom: 1px solid #e0e0e0;
+                    border-bottom: 1px solid #efefef;
                     padding: 10px 15px;
                     h6 {
                         margin: 0px;
@@ -183,7 +275,7 @@ $admin_error : #da2121;
                     padding: 0px 15px 15px;
                     display: flex;
                     justify-content: space-between;
-                    align-items: end;
+                    align-items: flex-end;
                     .q-chip{
                         margin: 0px;
                     }
@@ -217,6 +309,7 @@ $admin_error : #da2121;
                     padding: 10px 15px;
                     display: flex;
                     gap: 5px;
+                    flex-wrap: wrap;
                     .middlebtn{
                         color: #606060;
                     }
@@ -238,7 +331,7 @@ $admin_error : #da2121;
                     font-weight:500;
                 }
                 &-header{
-                    border-bottom: 1px solid #e0e0e0;
+                    border-bottom: 1px solid #efefef;
                     display: flex;
                     width: 100%;
                     padding: 15px 15px;
@@ -267,6 +360,17 @@ $admin_error : #da2121;
                 }
             }
         }
+        &-live{
+            &-filters{
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+                &-toggle{
+                    border-right: 1px solid #efefef;
+                    padding-right: 10px;
+                }
+            }
+        }
     }
     &-module{
         &-container{
@@ -286,7 +390,7 @@ $admin_error : #da2121;
             align-items: center;
             margin-bottom: 10px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #efefef;
             h3 {
                 width: auto !important;
                 font-size: 1.2rem !important;
@@ -341,7 +445,7 @@ $admin_error : #da2121;
                 align-items: center;
                 padding: 8px 0px;
                 margin-bottom: 8px;
-                border-bottom: 1px solid #e0e0e0;
+                border-bottom: 1px solid #efefef;
                 > span{
                     width: 12rem;
                     font-weight: 400;
@@ -462,7 +566,7 @@ $admin_error : #da2121;
             &-item{
                 margin-bottom: 20px;
                 padding-bottom: 20px;
-                border-bottom: 1px solid #e0e0e0;
+                border-bottom: 1px solid #efefef;
                 &-copybtn{
                     &-title{
                         margin: 0px;
@@ -534,7 +638,7 @@ $admin_error : #da2121;
                     }
                     &-error{
                         flex-direction: column;
-                        background-color: #e0e0e0 !important;
+                        background-color: #efefef !important;
                         color: #757575 !important;
                         width: 100%;
                         h5{
@@ -549,7 +653,7 @@ $admin_error : #da2121;
                     &-uploader{
                         height: 10rem;
                         flex-direction: column;
-                        border: 1px solid #e0e0e0 !important;
+                        border: 1px solid #efefef !important;
                         color: #757575 !important;
                         border-radius: 5px;
                         width: 100%;

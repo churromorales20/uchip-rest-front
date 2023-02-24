@@ -6,10 +6,7 @@
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
-          </q-avatar>
-          Title
+          Uchip REST
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -42,6 +39,7 @@
 
     <q-page-container class="admin-page-container">
       <AdminOrderDialog />
+      <AdminBubbleNotifications />
       <router-view />
     </q-page-container>
 
@@ -52,19 +50,65 @@
 import { ref } from 'vue'
 import { useAdminUserStore } from 'stores/admin_user'
 import AdminOrderDialog from '../components/admin/OrderDialog.vue';
+import AdminBubbleNotifications from '../components/admin/BubbleNotifications.vue';
+import Echo from 'laravel-echo'
+import Pusher from 'pusher-js'
+import { uchipRequest } from '../utils/uchipRequest';
 export default {
   name: 'AdminLayout',
   displayName: 'AdminLayout',
   components:{
-    AdminOrderDialog
+    AdminOrderDialog,
+    AdminBubbleNotifications
+  },
+  provide() {
+    return {
+      laravelEcho: this.laravel_echo
+    }
   },
   setup() {
+    window.Pusher = Pusher
     const leftDrawerOpen = ref(true)
     const uAdmin = useAdminUserStore()
-
+    const laravel_echo = new Echo({
+      broadcaster: 'pusher',
+      key: 'ASDASD4540',
+      cluster: '',
+      forceTLS: false,
+      encrypted: false,
+      wsHost: window.location.hostname,
+      wssPort: 6001,
+      wsPort: 6001,
+      disableStats: true,
+      enabledTransports: ['ws'],
+      authorizer: (channel, options) => {
+        return {
+          authorize: (socketId, callback) => {
+            uchipRequest.broadcastAuth(socketId, channel.name, callback);
+            /*axios.post('/api/broadcasting/auth', {
+              socket_id: socketId,
+              channel_name: channel.name
+            })
+              .then(response => {
+                callback(null, response.data);
+              })
+              .catch(error => {
+                callback(error);
+              });*/
+          }
+        };
+      },
+      /*authEndpoint: 'sssssroadcasting/auth',
+      auth: {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("user_admin_token")
+        }
+      }*/
+    });
     return {
       uAdmin,
       leftDrawerOpen,
+      laravel_echo,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value
       }
